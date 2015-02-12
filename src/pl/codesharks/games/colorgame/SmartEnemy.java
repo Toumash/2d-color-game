@@ -9,6 +9,9 @@ public class SmartEnemy extends GameObject {
     private Handler handler;
     private GameObject player;
 
+    public static final int MAX_SPEED_X = 30;
+    public static final int MAX_SPEED_Y = 30;
+
     public SmartEnemy(int x, int y, ID id, Handler handler) {
         super(x, y, id);
         this.handler = handler;
@@ -29,8 +32,10 @@ public class SmartEnemy extends GameObject {
                         + Math.pow(y - player.getY(), 2)
         );
 
-        velX = (float) ((-1.0 / distance) * diffX)*4;
-        velY = (float) ((-1.0 / distance) * diffY)*4;
+
+        velX = (float) ((-1.0 / distance) * diffX) * MAX_SPEED_X * deltaTime;
+
+        velY = (float) ((-1.0 / distance) * diffY) * MAX_SPEED_Y * deltaTime;
 
         x += velX;
         y += velY;

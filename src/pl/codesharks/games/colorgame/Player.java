@@ -4,8 +4,8 @@ import java.awt.*;
 import java.util.Random;
 
 public class Player extends GameObject {
-    public static final int VELOCITY_MAX_X = 35;
-    public static final int VELOCITY_MAX_Y = 35;
+    public static final int MAX_SPEED_X = 35;
+    public static final int MAX_SPEED_Y = 35;
     public static final int OBJ_WIDTH = 32;
     public static final int OBJ_HEIGHT = 32;
 

@@ -37,16 +37,16 @@ public class KeyInput extends KeyAdapter {
 
             if (tempObject.getId() == ID.Player) {
                 if (key == KeyEvent.VK_W) {
-                    tempObject.setVelY(-Player.VELOCITY_MAX_Y);
+                    tempObject.setVelY(-Player.MAX_SPEED_Y);
                     keyDown[KEY_UP] = true;
                 } else if (key == KeyEvent.VK_S) {
-                    tempObject.setVelY(Player.VELOCITY_MAX_Y);
+                    tempObject.setVelY(Player.MAX_SPEED_Y);
                     keyDown[KEY_DOWN] = true;
                 } else if (key == KeyEvent.VK_A) {
-                    tempObject.setVelX(-Player.VELOCITY_MAX_X);
+                    tempObject.setVelX(-Player.MAX_SPEED_X);
                     keyDown[KEY_LEFT] = true;
                 } else if (key == KeyEvent.VK_D) {
-                    tempObject.setVelX(Player.VELOCITY_MAX_X);
+                    tempObject.setVelX(Player.MAX_SPEED_X);
                     keyDown[KEY_RIGHT] = true;
                 }
                 break;

@@ -7,19 +7,19 @@ public class Handler {
 
     LinkedList<GameObject> objects = new LinkedList<GameObject>();
 
-    public void tick() {
+    public void tick(float deltaTime) {
         GameObject tempObject;
-        for (GameObject object : objects) {
-            tempObject = object;
-            tempObject.tick();
+        for (int i = 0; i < objects.size(); i++) {
+            tempObject = objects.get(i);
+            tempObject.update(deltaTime);
         }
     }
 
     public void render(Graphics g) {
         GameObject tempObject;
-        for (GameObject object : objects) {
-            tempObject = object;
-            tempObject.render(g, GameObject.RENDER_DEFAULT);
+        for (int i = 0; i < objects.size(); i++) {
+            tempObject = objects.get(i);
+            tempObject.render(g, GameObject.RENDER_TYPE_DEFAULT);
         }
 
     }

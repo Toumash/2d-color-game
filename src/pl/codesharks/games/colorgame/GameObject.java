@@ -4,8 +4,8 @@ import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
 public abstract class GameObject {
-    public static final int  RENDER_DEFAULT =0;
-    public static final int  RENDER_BOUNDS =1;
+    public static final int RENDER_TYPE_DEFAULT =0;
+    public static final int RENDER_TYPE_BOUNDS =1;
 
     protected float x, y;
     protected ID id;
@@ -16,6 +16,12 @@ public abstract class GameObject {
         this.y = y;
         this.id = id;
     }
+
+    public abstract void update(float deltaTime);
+
+    public abstract void render(Graphics g, int renderType);
+
+    public abstract Rectangle getBounds();
 
     public float getX() {
         return x;
@@ -56,12 +62,6 @@ public abstract class GameObject {
     public void setVelY(float velY) {
         this.velY = velY;
     }
-
-    public abstract void tick();
-
-    public abstract void render(Graphics g, int drawType);
-
-    public abstract Rectangle getBounds();
 
 }
 

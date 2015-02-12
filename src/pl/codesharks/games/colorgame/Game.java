@@ -1,33 +1,60 @@
 package pl.codesharks.games.colorgame;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.Random;
 
 public class Game extends Canvas implements Runnable {
 
-    public static final int WIDTH = 640, HEIGHT = WIDTH / 12 * 9;
+    public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(OBJ_WIDTH * 9) / 10;
+    public static final boolean PREFERENCE_FULLSCREEN = false;
+
+    public static final int FPS_LIMIT = 60;
+    /**
+     * Limits the FPS_LIMIT variable to the max serious value
+     * Don't use greater, it will blow your computer
+     */
+    public static final int FPS_LIMIT_OVERALL = 400;
+    static final double SLEEP_TIME_OPTIMAL = 1000 / (double) FPS_LIMIT;
+    static final double SLEEP_TIME_MIN = 1000 / (double) FPS_LIMIT_OVERALL;
+
     private static final long serialVersionUID = 5739050383772454388L;
-    private Thread thread;
-    private boolean running = false;
-    private Handler handler;
+
+    private final Object lock = new Object();
+    Handler handler;
+    BufferStrategy bufferStrategy = null;
+    private Image bgImg = null;
+    @SuppressWarnings("FieldCanBeLocal")
+    private GameScreen gameScreen;
     private HUD hud;
-    private Spawn spawner;
+    private Spawn spawn;
+    private Thread thread;
+    private volatile boolean running = false;
+    private long FPS = 0;
+    private double mRenderTime = 0;
 
-    private int FPS = 0;
-
+    private int frameCounter = 0;
 
     public Game() {
+        //GRAPHICS
+        bgImg = ResourceLoader.getImage("background.jpg");
+
+        if (bgImg == null) {
+            showInfoBox("Image is null", "NULL POINTER!!!");
+        }
+
         //HANDLERS
         handler = new Handler();
-        this.addKeyListener(new KeyInput(handler));
-        //WINDOW
-        new Window(WIDTH, HEIGHT, "Cool Game!", this);
+        this.addKeyListener(new KeyInput(this));
 
         //HUD
         hud = new HUD();
         //SPAWNER
-        spawner = new Spawn(handler, hud);
+        spawn = new Spawn(handler, hud);
+
+        //WINDOW
+        gameScreen = new GameScreen(WIDTH, HEIGHT, "Cool Game!", Game.this, PREFERENCE_FULLSCREEN);
 
         //OBJECTS
         Random r = new Random();
@@ -36,9 +63,20 @@ public class Game extends Canvas implements Runnable {
             handler.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy, handler));
         }
 
-
         handler.addObject(new Player(200, 200, ID.Player, handler));
 
+
+        bufferStrategy = this.getBufferStrategy();
+        if (bufferStrategy == null) {
+            this.createBufferStrategy(2);
+            bufferStrategy = this.getBufferStrategy();
+        }
+
+        start();
+    }
+
+    public static void showInfoBox(String infoMessage, String titleBar) {
+        JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {
@@ -61,6 +99,7 @@ public class Game extends Canvas implements Runnable {
 
         return out;
     }
+
     /**
      * Limites the var to the min,max
      *
@@ -78,80 +117,97 @@ public class Game extends Canvas implements Runnable {
         return out;
     }
 
+    /**
+     * The main game loop. This loop is running during all game
+     * play as is responsible for the following activities:
+     * <p/>
+     * - Working out the speed of the game loop to update moves
+     * - Moving the game entities
+     * - Drawing the screen contents (entities, text)
+     * - Updating game events
+     * - Checking Input
+     * <p/>
+     */
     @Override
     public void run() {
-        this.requestFocus();
+        long lastLoopTime = System.nanoTime();
+        //The last time at which we recorded the frame rate
+        double msToUpdateFPSHUD = 0;
 
-        long lastTime = System.nanoTime();
-        double amountOfTicks = 60.0;
-        double ns = 1000000000 / amountOfTicks;
-        double delta = 0;
-        long timer = System.currentTimeMillis();
-        int frames = 0;
         while (running) {
-            long now = System.nanoTime();
-            delta += (now - lastTime) / ns;
-            lastTime = now;
-            while (delta >= 1) {
-                tick();
-                delta--;
+            long renderStartTime = System.nanoTime();
+            double deltaMs = (renderStartTime - lastLoopTime) / 1000000.0d;
+            lastLoopTime = renderStartTime;
 
-            }
-            if (running) {
-                render();
-                frames++;
-            }
-            if (System.currentTimeMillis() - timer > 1000) {
-                timer += 1000;
-                FPS = frames;
-                frames = 0;
+            msToUpdateFPSHUD += deltaMs;
+            frameCounter++;
 
+            tick((float) (deltaMs/100.0f));
+            render(deltaMs);
+
+            long renderEndTime = System.nanoTime();
+            if (msToUpdateFPSHUD >= 1000) {
+                FPS = frameCounter;
+                mRenderTime = (renderEndTime - renderStartTime) / 1000000.0d;
+                msToUpdateFPSHUD = 0;
+                frameCounter = 0;
             }
+            try {
+                Thread.sleep((long) Math.max(0, Math.max(SLEEP_TIME_OPTIMAL - ((renderEndTime - lastLoopTime) / 10000000.0d), SLEEP_TIME_MIN)));
+            } catch (InterruptedException ignored) {
+            }
+
         }
-        stop();
     }
 
-    private void render() {
-        BufferStrategy bs = this.getBufferStrategy();
-        if (bs == null) {
-            this.createBufferStrategy(3);
-            return;
-        }
-        Graphics g = bs.getDrawGraphics();
-
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
-
-
-        handler.render(g);
-        hud.render(g, FPS);
-
-
-        g.dispose();
-        bs.show();
+    public void goFullScreen(boolean fullscreen) {
+        this.gameScreen.setFullscreen(fullscreen);
     }
 
-    private void tick() {
-        handler.tick();
+    public boolean isFullscreen() {
+        return gameScreen.isFullscreen();
+    }
+
+    public void switchFullscreen() {
+        goFullScreen(!isFullscreen());
+    }
+
+    private void render(double deltaMs) {
+        if (running) {
+            Graphics g = bufferStrategy.getDrawGraphics();
+
+            //BACKGROUND
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, WIDTH, HEIGHT);
+
+            g.drawImage(bgImg, WIDTH / 2 - (bgImg.getWidth(null) / 2), HEIGHT / 2 - (bgImg.getHeight(null) / 2), null);
+
+            handler.render(g);
+            hud.render(g, FPS, mRenderTime);
+
+            g.dispose();
+            bufferStrategy.show();
+        }
+    }
+
+    private void tick(float deltaTime) {
+        handler.tick(deltaTime);
         hud.tick();
-        spawner.tick();
+        spawn.tick();
     }
 
-    public synchronized void start() {
+    public void start() {
         thread = new Thread(this);
         thread.start();
-        running = true;
-    }
-
-    public synchronized void stop() {
-        try {
-
-            thread.join();
-            running = false;
-        } catch (Exception e) {
-            e.printStackTrace();
+        synchronized (lock) {
+            running = true;
         }
-
     }
 
+    public void stop() {
+        synchronized (lock) {
+            this.running = false;
+            thread.stop();
+        }
+    }
 }

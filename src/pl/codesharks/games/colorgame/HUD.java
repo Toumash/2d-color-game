@@ -19,7 +19,7 @@ public class HUD {
         score++;
     }
 
-    public void render(Graphics g,int fps) {
+    public void render(Graphics g,long fps,double renderTime) {
         g.setColor(Color.GRAY);
         g.fillRect(15, 15, 200, 32);
 
@@ -33,6 +33,9 @@ public class HUD {
         g.drawString("Score: " + score, 10, Game.HEIGHT - 64);
         g.drawString("Level: " + level, 10, Game.HEIGHT - 32);
         g.drawString("FPS: " + fps, 10, 20);
+        g.drawString(String.format("Render time: %3.2f ms" , renderTime), 10, 60);
+/*        System.out.println("FPS: " + fps);
+        System.out.println("Render Time: " + renderTime);*/
     }
 
     public int getScore() {

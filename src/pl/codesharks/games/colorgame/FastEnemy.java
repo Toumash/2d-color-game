@@ -16,7 +16,7 @@ public static final Color color = Color.CYAN;
     }
 
     @Override
-    public void tick() {
+    public void update(float deltaTime) {
         x += velX;
         y += velY;
 
@@ -27,15 +27,15 @@ public static final Color color = Color.CYAN;
     }
 
     @Override
-    public void render(Graphics g, int drawType) {
+    public void render(Graphics g, int renderType) {
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(color);
 
-        switch (drawType) {
-            case RENDER_DEFAULT:
+        switch (renderType) {
+            case RENDER_TYPE_DEFAULT:
                 g.fillRect((int)x, (int)y, 16, 16);
                 break;
-            case RENDER_BOUNDS:
+            case RENDER_TYPE_BOUNDS:
                 g2d.draw(getBounds());
                 break;
 

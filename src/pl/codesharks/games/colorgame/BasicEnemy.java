@@ -16,7 +16,7 @@ public class BasicEnemy extends GameObject {
     }
 
     @Override
-    public void tick() {
+    public void update(float deltaTime) {
         x += velX;
         y += velY;
 
@@ -27,15 +27,15 @@ public class BasicEnemy extends GameObject {
     }
 
     @Override
-    public void render(Graphics g, int drawType) {
+    public void render(Graphics g, int renderType) {
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(color);
 
-        switch (drawType) {
-            case GameObject.RENDER_DEFAULT:
+        switch (renderType) {
+            case GameObject.RENDER_TYPE_DEFAULT:
                 g.fillRect((int)x, (int)y, 16, 16);
                 break;
-            case GameObject.RENDER_BOUNDS:
+            case GameObject.RENDER_TYPE_BOUNDS:
                 g2d.draw(getBounds());
                 break;
 

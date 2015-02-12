@@ -11,12 +11,13 @@ public class KeyInput extends KeyAdapter {
     public static final int KEY_LEFT = 2;
     public static final int KEY_RIGHT = 3;
     private Handler handler;
+    private Game game;
     private boolean[] keyDown = new boolean[4];
 
 
-    public KeyInput(Handler handler) {
-
-        this.handler = handler;
+    public KeyInput(Game game) {
+        this.game = game;
+        this.handler = game.handler;
 
         Arrays.fill(keyDown, false);
     }
@@ -25,6 +26,12 @@ public class KeyInput extends KeyAdapter {
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
+
+        if (key == KeyEvent.VK_F11) {
+            game.switchFullscreen();
+            return;
+        }
+
         for (int i = 0; i < handler.objects.size(); i++) {
             GameObject tempObject = handler.objects.get(i);
 
@@ -32,19 +39,17 @@ public class KeyInput extends KeyAdapter {
                 if (key == KeyEvent.VK_W) {
                     tempObject.setVelY(-Player.VELOCITY_MAX_Y);
                     keyDown[KEY_UP] = true;
-                }
-                if (key == KeyEvent.VK_S) {
+                } else if (key == KeyEvent.VK_S) {
                     tempObject.setVelY(Player.VELOCITY_MAX_Y);
                     keyDown[KEY_DOWN] = true;
-                }
-                if (key == KeyEvent.VK_A) {
+                } else if (key == KeyEvent.VK_A) {
                     tempObject.setVelX(-Player.VELOCITY_MAX_X);
                     keyDown[KEY_LEFT] = true;
-                }
-                if (key == KeyEvent.VK_D) {
+                } else if (key == KeyEvent.VK_D) {
                     tempObject.setVelX(Player.VELOCITY_MAX_X);
                     keyDown[KEY_RIGHT] = true;
                 }
+                break;
             }
 
         }
@@ -53,24 +58,28 @@ public class KeyInput extends KeyAdapter {
 
     @Override
     public void keyReleased(KeyEvent e) {
-
         int key = e.getKeyCode();
+
         for (int i = 0, length = handler.objects.size(); i < length; i++) {
             GameObject tempObject = handler.objects.get(i);
 
             if (tempObject.getId() == ID.Player) {
                 if (key == KeyEvent.VK_W) keyDown[KEY_UP] = false;
-                if (key == KeyEvent.VK_S) keyDown[KEY_DOWN] = false;//tempObject.setVelY(0);
-                if (key == KeyEvent.VK_A) keyDown[KEY_LEFT] = false;//tempObject.setVelX(0);
-                if (key == KeyEvent.VK_D) keyDown[KEY_RIGHT] = false;//tempObject.setVelX(0);
+                else if (key == KeyEvent.VK_S) keyDown[KEY_DOWN] = false;//tempObject.setVelY(0);
+                else if (key == KeyEvent.VK_A) keyDown[KEY_LEFT] = false;//tempObject.setVelX(0);
+                else if (key == KeyEvent.VK_D) keyDown[KEY_RIGHT] = false;//tempObject.setVelX(0);
 
                 //vertical movement
-                if (!keyDown[KEY_UP] && !keyDown[KEY_UP]) tempObject.setVelY(0);
+                if (!keyDown[KEY_UP] && !keyDown[KEY_DOWN]) tempObject.setVelY(0);
+                else if (keyDown[KEY_UP] && keyDown[KEY_DOWN]) tempObject.setVelY(0);
 
                 //horizontal movement
                 if (!keyDown[KEY_LEFT] && !keyDown[KEY_RIGHT]) tempObject.setVelX(0);
+                else if (keyDown[KEY_LEFT] && keyDown[KEY_RIGHT]) tempObject.setVelX(0);
+                break;
             }
         }
+
     }
 
 }

@@ -19,9 +19,7 @@ public class SmartEnemy extends GameObject {
     }
 
     @Override
-    public void tick() {
-        x += velX;
-        y += velY;
+    public void update(float deltaTime) {
 
         float diffX = (float) (x - player.getX() - (player.getBounds().getWidth() / 2));
         float diffY = (float) (y - player.getY() - (player.getBounds().getHeight() / 2));
@@ -31,23 +29,26 @@ public class SmartEnemy extends GameObject {
                         + Math.pow(y - player.getY(), 2)
         );
 
-        velX = (float) ((-1.0 / distance) * diffX);
-        velY = (float) ((-1.0 / distance) * diffY);
+        velX = (float) ((-1.0 / distance) * diffX)*4;
+        velY = (float) ((-1.0 / distance) * diffY)*4;
+
+        x += velX;
+        y += velY;
 
 
         handler.addObject(new Trail((int) x, (int) y, ID.Trail, Color.RED, 16, 16, 0.1f, handler));
     }
 
     @Override
-    public void render(Graphics g, int drawType) {
+    public void render(Graphics g, int renderType) {
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(color);
 
-        switch (drawType) {
-            case GameObject.RENDER_DEFAULT:
+        switch (renderType) {
+            case GameObject.RENDER_TYPE_DEFAULT:
                 g.fillRect((int) x, (int) y, 16, 16);
                 break;
-            case GameObject.RENDER_BOUNDS:
+            case GameObject.RENDER_TYPE_BOUNDS:
                 g2d.draw(getBounds());
                 break;
 

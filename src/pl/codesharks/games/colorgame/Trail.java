@@ -9,6 +9,7 @@ public class Trail extends GameObject {
     private float alpha = 1f;
     private Handler handler;
     private ID id;
+
     /**
      * 0.001 - 0.1
      */
@@ -31,7 +32,7 @@ public class Trail extends GameObject {
     }
 
     @Override
-    public void tick() {
+    public void update(float deltaTime) {
         if (alpha > life) {
             alpha -= life;
         } else {
@@ -40,14 +41,21 @@ public class Trail extends GameObject {
     }
 
     @Override
-    public void render(Graphics g, int drawType) {
+    public void render(Graphics g, int renderType) {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setComposite(makeTransparent(alpha));
         g.setColor(color);
-        g.fillRect((int)x, (int)y, width, height);
 
+        switch (renderType) {
+            case GameObject.RENDER_TYPE_DEFAULT:
+                g.fillRect((int) x, (int) y, width, height);
+                break;
 
+            case GameObject.RENDER_TYPE_BOUNDS:
+                g.drawRect((int) x, (int) y, width, height);
+                break;
+        }
         g2d.setComposite(makeTransparent(1));
     }
 

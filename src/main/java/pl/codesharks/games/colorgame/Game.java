@@ -1,5 +1,12 @@
 package pl.codesharks.games.colorgame;
 
+import pl.codesharks.games.colorgame.objects.BasicEnemy;
+import pl.codesharks.games.colorgame.objects.FloatingImage;
+import pl.codesharks.games.colorgame.objects.ID;
+import pl.codesharks.games.colorgame.objects.Player;
+import pl.codesharks.games.colorgame.resources.GameScreen;
+import pl.codesharks.games.colorgame.resources.ResourceLoader;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -22,7 +29,7 @@ public class Game extends Canvas implements Runnable {
     private static final long serialVersionUID = 5739050383772454388L;
 
     private final Object lock = new Object();
-    Handler handler;
+    public Handler handler;
     BufferStrategy bufferStrategy = null;
     Graphics buffer;
     private Image bgImg = null;

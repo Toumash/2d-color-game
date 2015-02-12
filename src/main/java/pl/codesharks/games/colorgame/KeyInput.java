@@ -1,5 +1,9 @@
 package pl.codesharks.games.colorgame;
 
+import pl.codesharks.games.colorgame.objects.GameObject;
+import pl.codesharks.games.colorgame.objects.ID;
+import pl.codesharks.games.colorgame.objects.Player;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;

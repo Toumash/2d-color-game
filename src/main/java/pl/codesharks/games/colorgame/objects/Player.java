@@ -1,4 +1,8 @@
-package pl.codesharks.games.colorgame;
+package pl.codesharks.games.colorgame.objects;
+
+import pl.codesharks.games.colorgame.Game;
+import pl.codesharks.games.colorgame.HUD;
+import pl.codesharks.games.colorgame.Handler;
 
 import java.awt.*;
 import java.util.Random;
@@ -40,9 +44,9 @@ public class Player extends GameObject {
     public void render(Graphics g, int renderType) {
         g.setColor(color);
 
-        if (renderType == GameObject.RENDER_TYPE_DEFAULT) {
+        if (renderType == RENDER_TYPE_DEFAULT) {
             g.fillRect((int) x, (int) y, WIDTH, HEIGHT);
-        } else if (renderType == GameObject.RENDER_TYPE_BOUNDS) {
+        } else if (renderType == RENDER_TYPE_BOUNDS) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.draw(getBounds());
         }

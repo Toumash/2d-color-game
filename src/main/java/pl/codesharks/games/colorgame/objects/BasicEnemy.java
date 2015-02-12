@@ -1,4 +1,7 @@
-package pl.codesharks.games.colorgame;
+package pl.codesharks.games.colorgame.objects;
+
+import pl.codesharks.games.colorgame.Game;
+import pl.codesharks.games.colorgame.Handler;
 
 import java.awt.*;
 

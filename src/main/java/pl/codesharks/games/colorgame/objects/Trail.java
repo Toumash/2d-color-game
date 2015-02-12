@@ -1,4 +1,6 @@
-package pl.codesharks.games.colorgame;
+package pl.codesharks.games.colorgame.objects;
+
+import pl.codesharks.games.colorgame.Handler;
 
 import java.awt.*;
 
@@ -48,11 +50,11 @@ public class Trail extends GameObject {
         g.setColor(color);
 
         switch (renderType) {
-            case GameObject.RENDER_TYPE_DEFAULT:
+            case RENDER_TYPE_DEFAULT:
                 g.fillRect((int) x, (int) y, width, height);
                 break;
 
-            case GameObject.RENDER_TYPE_BOUNDS:
+            case RENDER_TYPE_BOUNDS:
                 g.drawRect((int) x, (int) y, width, height);
                 break;
         }

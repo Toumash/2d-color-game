@@ -1,4 +1,6 @@
-package pl.codesharks.games.colorgame;
+package pl.codesharks.games.colorgame.objects;
+
+import pl.codesharks.games.colorgame.Handler;
 
 import java.awt.*;
 
@@ -46,7 +48,7 @@ public class FloatingImage extends GameObject {
         switch (renderType) {
             case GameObject.RENDER_TYPE_DEFAULT:
                 g.fillRect((int) x, (int) y, 16, 16);
-                g.drawImage(mImage,(int)x,(int)y,null);
+                g.drawImage(mImage, (int) x, (int) y, null);
                 break;
             case GameObject.RENDER_TYPE_BOUNDS:
                 g2d.draw(getBounds());

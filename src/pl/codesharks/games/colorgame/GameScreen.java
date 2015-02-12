@@ -99,7 +99,7 @@ public class GameScreen extends java.awt.Canvas {
                 //show the frame
                 setVisible(true);
             }
-            this.game.start();
+            this.game.startGame();
             //make sure that the screen is refreshed.
             repaint();
         }

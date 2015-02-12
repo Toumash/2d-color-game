@@ -4,13 +4,16 @@ import java.awt.*;
 import java.util.Random;
 
 public class Player extends GameObject {
+    public static final Color color = Color.YELLOW;
     public static final int MAX_SPEED_X = 35;
     public static final int MAX_SPEED_Y = 35;
-    public static final int OBJ_WIDTH = 32;
-    public static final int OBJ_HEIGHT = 32;
-
+    public static final int WIDTH = 32;
+    public static final int HEIGHT = 32;
+    public final int TRAIL_STEP_X = 2;
+    public final int TRAIL_STEP_Y = 2;
     Random r = new Random();
-
+    float lastTrailX = x;
+    float lastTrailY = y;
     private Handler handler;
 
     public Player(int x, int y, ID id, Handler handler) {
@@ -22,20 +25,23 @@ public class Player extends GameObject {
     public void update(float deltaTime) {
         x += velX * deltaTime;
         y += velY * deltaTime;
-        x = Game.clamp((int) x, 0, (float) (Game.WIDTH - OBJ_WIDTH));
-        y = Game.clamp((int) y, 0, (float) (Game.HEIGHT - OBJ_HEIGHT));
+        x = Game.clamp((int) x, 0, (float) (Game.WIDTH - WIDTH));
+        y = Game.clamp((int) y, 0, (float) (Game.HEIGHT - HEIGHT));
 
-        handler.addObject(new Trail((int) x, (int) y, ID.Trail, Color.white, 32, 32, 0.2f, handler));
-
+        if (Math.abs(lastTrailX - x) >= TRAIL_STEP_X || Math.abs(lastTrailY - y) >= TRAIL_STEP_Y) {
+            handler.addObject(new Trail((int) x, (int) y, ID.Trail, color, WIDTH, HEIGHT, 0.1f, handler));
+            lastTrailX = x;
+            lastTrailY = y;
+        }
         checkCollisions();
     }
 
     @Override
     public void render(Graphics g, int renderType) {
-        g.setColor(Color.WHITE);
+        g.setColor(color);
 
         if (renderType == GameObject.RENDER_TYPE_DEFAULT) {
-            g.fillRect((int) x, (int) y, OBJ_WIDTH, OBJ_HEIGHT);
+            g.fillRect((int) x, (int) y, WIDTH, HEIGHT);
         } else if (renderType == GameObject.RENDER_TYPE_BOUNDS) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.draw(getBounds());
@@ -56,7 +62,7 @@ public class Player extends GameObject {
 
     @Override
     public Rectangle getBounds() {
-        return new Rectangle((int) x, (int) y, OBJ_WIDTH, OBJ_HEIGHT);
+        return new Rectangle((int) x, (int) y, WIDTH, HEIGHT);
     }
 
 }

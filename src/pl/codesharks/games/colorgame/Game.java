@@ -7,10 +7,10 @@ import java.util.Random;
 
 public class Game extends Canvas implements Runnable {
 
-    public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(OBJ_WIDTH * 9) / 10;
+    public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(WIDTH * 9) / 10;
     public static final boolean PREFERENCE_FULLSCREEN = false;
 
-    public static final int FPS_LIMIT = 60;
+    public static final int FPS_LIMIT = 45;
     /**
      * Limits the FPS_LIMIT variable to the max serious value
      * Don't use greater, it will blow your computer
@@ -24,7 +24,9 @@ public class Game extends Canvas implements Runnable {
     private final Object lock = new Object();
     Handler handler;
     BufferStrategy bufferStrategy = null;
+    Graphics buffer;
     private Image bgImg = null;
+    private Image imageImg = null;
     @SuppressWarnings("FieldCanBeLocal")
     private GameScreen gameScreen;
     private HUD hud;
@@ -33,7 +35,6 @@ public class Game extends Canvas implements Runnable {
     private volatile boolean running = false;
     private long FPS = 0;
     private double mRenderTime = 0;
-
     private int frameCounter = 0;
 
     public Game() {
@@ -42,6 +43,10 @@ public class Game extends Canvas implements Runnable {
 
         if (bgImg == null) {
             showInfoBox("Image is null", "NULL POINTER!!!");
+        }
+        imageImg = ResourceLoader.getImage("cool.png");
+        if (imageImg == null) {
+            showInfoBox("image is null", "NPE");
         }
 
         //HANDLERS
@@ -64,6 +69,7 @@ public class Game extends Canvas implements Runnable {
         }
 
         handler.addObject(new Player(200, 200, ID.Player, handler));
+        handler.addObject(new FloatingImage(250, 250, ID.Player, imageImg, handler));
 
 
         bufferStrategy = this.getBufferStrategy();
@@ -72,7 +78,7 @@ public class Game extends Canvas implements Runnable {
             bufferStrategy = this.getBufferStrategy();
         }
 
-        start();
+        startGame();
     }
 
     public static void showInfoBox(String infoMessage, String titleBar) {
@@ -133,6 +139,7 @@ public class Game extends Canvas implements Runnable {
         long lastLoopTime = System.nanoTime();
         //The last time at which we recorded the frame rate
         double msToUpdateFPSHUD = 0;
+        buffer = bufferStrategy.getDrawGraphics();
 
         while (running) {
             long renderStartTime = System.nanoTime();
@@ -142,7 +149,7 @@ public class Game extends Canvas implements Runnable {
             msToUpdateFPSHUD += deltaMs;
             frameCounter++;
 
-            tick((float) (deltaMs/100.0f));
+            tick((float) (deltaMs / 100.0f));
             render(deltaMs);
 
             long renderEndTime = System.nanoTime();
@@ -174,18 +181,17 @@ public class Game extends Canvas implements Runnable {
 
     private void render(double deltaMs) {
         if (running) {
-            Graphics g = bufferStrategy.getDrawGraphics();
-
+            buffer.clearRect(0, 0, WIDTH, HEIGHT);
             //BACKGROUND
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, WIDTH, HEIGHT);
+            buffer.setColor(Color.BLACK);
+            buffer.fillRect(0, 0, WIDTH, HEIGHT);
 
-            g.drawImage(bgImg, WIDTH / 2 - (bgImg.getWidth(null) / 2), HEIGHT / 2 - (bgImg.getHeight(null) / 2), null);
+            buffer.drawImage(bgImg, WIDTH / 2 - (bgImg.getWidth(null) / 2), HEIGHT / 2 - (bgImg.getHeight(null) / 2), null);
 
-            handler.render(g);
-            hud.render(g, FPS, mRenderTime);
+            handler.render(buffer);
+            hud.render(buffer, FPS, mRenderTime);
 
-            g.dispose();
+            // buffer.dispose();
             bufferStrategy.show();
         }
     }
@@ -196,7 +202,7 @@ public class Game extends Canvas implements Runnable {
         spawn.tick();
     }
 
-    public void start() {
+    public void startGame() {
         thread = new Thread(this);
         thread.start();
         synchronized (lock) {

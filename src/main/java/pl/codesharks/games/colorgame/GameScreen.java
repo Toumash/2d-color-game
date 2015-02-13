@@ -1,7 +1,5 @@
 package pl.codesharks.games.colorgame;
 
-import pl.codesharks.games.colorgame.GameEngine;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,7 +11,7 @@ public class GameScreen extends java.awt.Canvas {
     private boolean fullscreen;
     private GameEngine gameEngine;
 
-    public GameScreen(int width, int height, String title, GameEngine gameEngine, boolean requestFullscreen) {
+    public GameScreen(GameEngine gameEngine, String title, boolean requestFullscreen) {
         this.fullscreen = requestFullscreen;
         this.gameEngine = gameEngine;
 

@@ -81,7 +81,7 @@ public final class SpriteManager {
      * @param ref The reference to the image to use for the sprite
      * @return A sprite instance containing an accelerate image of the request reference
      */
-    public Sprite getSprite(String ref) {
+    public Sprite loadSprite(String ref) {
         // if it is in the cache
         if (sprites.get(ref) != null) {
             return sprites.get(ref);
@@ -114,8 +114,8 @@ public final class SpriteManager {
         return sprite;
     }
 
-    public SpriteSheet getSpriteSheet(String ref, int tileSizeX, int tileSizeY) {
-        return getSprite(ref).toSpriteSheet(tileSizeX, tileSizeY);
+    public SpriteSheet loadSpriteSheet(String ref, int tileSizeX, int tileSizeY) {
+        return loadSprite(ref).toSpriteSheet(tileSizeX, tileSizeY);
     }
 
     /**

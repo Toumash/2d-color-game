@@ -1,8 +1,8 @@
 package pl.codesharks.games.colorgame.objects;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import pl.codesharks.games.colorgame.resources.GameObjectManager;
 import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.resources.GameObjectManager;
 
 import java.awt.*;
 import java.util.ArrayDeque;
@@ -22,19 +22,12 @@ public class SmartEnemy extends GameObject {
     public volatile Queue<Trail> trails = new ArrayDeque<Trail>();
     float lastTrailX = x;
     float lastTrailY = y;
-    private GameObjectManager gameObjectManager;
     private GameObject player;
 
     public SmartEnemy(int x, int y, ID id, GameObjectManager gameObjectManager) {
         super(x, y, id);
-        this.gameObjectManager = gameObjectManager;
 
-        for (int i = 0, length = gameObjectManager.getSize(); i < length; i++) {
-            if (gameObjectManager.objects.get(i) instanceof Player) {
-                player = gameObjectManager.objects.get(i);
-                break;
-            }
-        }
+        player = GameObjectManager.getInstance().getPlayerObject();
     }
 
     @Override
@@ -63,9 +56,12 @@ public class SmartEnemy extends GameObject {
 
     @Override
     public void render(Graphics g, int renderType) {
+        for (Trail t : trails) {
+            t.render(g, renderType);
+        }
+
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(color);
-
         switch (renderType) {
             case RENDER_TYPE_DEFAULT:
                 g.fillRect((int) x, (int) y, WIDTH, HEIGHT);
@@ -74,9 +70,12 @@ public class SmartEnemy extends GameObject {
                 g2d.draw(getBounds());
                 break;
         }
-        for (Trail t : trails) {
-            t.render(g, renderType);
-        }
+
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

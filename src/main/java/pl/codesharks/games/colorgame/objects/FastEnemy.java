@@ -1,7 +1,6 @@
 package pl.codesharks.games.colorgame.objects;
 
 import pl.codesharks.games.colorgame.GameEngine;
-import pl.codesharks.games.colorgame.resources.GameObjectManager;
 import pl.codesharks.games.colorgame.ID;
 
 import java.awt.*;
@@ -21,12 +20,10 @@ public class FastEnemy extends GameObject {
     public volatile Queue<Trail> trails = new ArrayDeque<Trail>();
     float lastTrailX = x;
     float lastTrailY = y;
-    private GameObjectManager gameObjectManager;
 
 
-    public FastEnemy(int x, int y, ID id, GameObjectManager gameObjectManager) {
+    public FastEnemy(int x, int y, ID id) {
         super(x, y, id);
-        this.gameObjectManager = gameObjectManager;
         velX = MAX_SPEED_X;
         velY = MAX_SPEED_Y;
     }
@@ -36,8 +33,8 @@ public class FastEnemy extends GameObject {
         x += velX * deltaTime;
         y += velY * deltaTime;
 
-        if (x <= 0 || x >= GameEngine.WIDTH - 16) velX *= -1;
-        if (y <= 0 || y >= GameEngine.HEIGHT - 32) velY *= -1;
+        if (x <= 0 || x >= GameEngine.WIDTH) velX *= -1;
+        if (y <= 0 || y >= GameEngine.HEIGHT) velY *= -1;
 
         if (Math.abs(lastTrailX - x) >= TRAIL_STEP_X || Math.abs(lastTrailY - y) >= TRAIL_STEP_Y) {
             if (trails.size() < MAX_TRAIL_AMOUNT) {
@@ -47,7 +44,7 @@ public class FastEnemy extends GameObject {
                 tmp.reset(x, y);
                 trails.add(tmp);
             }
-            // gameObjectManager.addObject(new Trail((int) x, (int) y, ID.Trail, color, WIDTH, HEIGHT, 0.1f, gameObjectManager));
+
             lastTrailX = x;
             lastTrailY = y;
         }
@@ -74,6 +71,11 @@ public class FastEnemy extends GameObject {
         for (Trail t : trails) {
             t.render(g, renderType);
         }
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

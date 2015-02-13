@@ -6,32 +6,42 @@ import pl.codesharks.games.colorgame.resources.FontLib;
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
-public class HUD {
-    public static int HEALTH = 100;
-
+public class HUD implements GameObserver {
     private static int greenValue = 255;
+    GameData gameData = GameData.getInstance();
+    boolean deathNotified = false;
+    boolean dead = false;
     private int score = 0;
     private int level = 1;
+    private int hp = 100;
+
+    public HUD() {
+    }
 
     public void update() {
-        HEALTH = GameEngine.clamp(HEALTH, 0, 100);
-        score++;
+        /*score = gameData.getScore();
+        level = gameData.getLevel();
+        hp = gameData.getHealth();*/
+
+    }
+
+    public void notifyPlayerDeath() {
+        dead = true;
     }
 
     public void render(Graphics g, long fps, double renderTime) {
         g.setColor(ColorLib.HUD_GRAY);
 
-        if (HEALTH > 0) {
+        if (!dead) {
             g.setColor(ColorLib.HEALTH_BAR_BACKGROUND);
             g.fillRect(15, 15, 200, 32);
 
             g.setColor(ColorLib.HEALTH_BAR_HEALTH);
-            g.fillRect(15, 15, HEALTH * 2, 32);
+            g.fillRect(15, 15, hp * 2, 32);
 
             g.setColor(Color.WHITE);
             g.drawRect(15, 15, 200, 32);
         } else {
-
             Font f = g.getFont();
             g.setFont(FontLib.END_GAME);
             RenderUtils.drawStringAtCenter(g, "YOU LOST : C", 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2);
@@ -42,23 +52,25 @@ public class HUD {
         g.drawString("Level: " + level, 10, GameEngine.HEIGHT - 32);
         g.drawString("FPS: " + fps, 10, 70);
         g.drawString(String.format("Render time: %3.2f ms", renderTime), 10, 60);
-/*        System.out.println("FPS: " + fps);
-        System.out.println("Render Time: " + renderTime);*/
     }
 
-    public int getScore() {
-        return score;
-    }
 
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
+    @Override
+    public void gameDataChanged(int changedData) {
+        switch (changedData){
+            case GameData.CHANGED.DEATH:
+                dead=true;
+                break;
+            case GameData.CHANGED.LEVEL:
+                level = gameData.getLevel();
+                break;
+            case GameData.CHANGED.SCORE:
+                score = gameData.getScore();
+                break;
+            case GameData.CHANGED.HEALTH:
+                hp= gameData.getHp();
+                hp = GameEngine.clamp(hp, 0, 100);
+                break;
+        }
     }
 }

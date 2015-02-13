@@ -7,10 +7,7 @@ import pl.codesharks.games.colorgame.ID;
 
 import java.awt.*;
 
-/**
- * pl.codesharks.games.colorgame.objects
- * Created by Tomasz on 2015-02-13.
- */
+
 public class AnimatedObject extends GameObject {
 
     public static final int MAX_SPEED_X = 35;
@@ -33,7 +30,6 @@ public class AnimatedObject extends GameObject {
         x = GameEngine.clamp((int) x, 0, (float) (GameEngine.WIDTH - WIDTH));
         y = GameEngine.clamp((int) y, 0, (float) (GameEngine.HEIGHT - HEIGHT));
         animation.update();
-
     }
 
     @Override
@@ -46,6 +42,11 @@ public class AnimatedObject extends GameObject {
             Graphics2D g2d = (Graphics2D) g;
             g2d.draw(getBounds());
         }
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package pl.codesharks.games.colorgame.resources;
 
 import pl.codesharks.games.colorgame.objects.GameObject;
+import pl.codesharks.games.colorgame.objects.Player;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,7 +32,10 @@ public final class GameObjectManager {
 
     public void render(Graphics g) {
         for (int i = 0, length = size; i < length; i++) {
-            objects.get(i).render(g, GameObject.RENDER_TYPE_DEFAULT);
+            GameObject tmp = objects.get(i);
+            if (tmp.isEnabled()) {
+                tmp.render(g, GameObject.RENDER_TYPE_DEFAULT);
+            }
         }
     }
 
@@ -48,5 +52,16 @@ public final class GameObjectManager {
         if (objects.remove(object)) {
             size--;
         }
+    }
+
+    public Player getPlayerObject() {
+        Player player = null;
+        for (int i = 0, length = getSize(); i < length; i++) {
+            if (objects.get(i) instanceof Player) {
+                player = (Player) objects.get(i);
+                break;
+            }
+        }
+        return player;
     }
 }

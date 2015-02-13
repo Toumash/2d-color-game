@@ -69,7 +69,10 @@ public class BasicEnemy extends GameObject {
         for (Trail t : trails) {
             t.render(g, renderType);
         }
+    }
 
+    @Override
+    public void start() {
 
     }
 

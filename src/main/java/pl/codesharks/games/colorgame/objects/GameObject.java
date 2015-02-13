@@ -12,6 +12,7 @@ public abstract class GameObject implements Cloneable {
     protected float x, y;
     protected ID id;
     protected float velX, velY;
+    protected boolean enabled = true;
 
     public GameObject(float x, float y, ID id) {
         this.x = x;
@@ -23,7 +24,17 @@ public abstract class GameObject implements Cloneable {
 
     public abstract void render(Graphics g, int renderType);
 
+    public abstract void start();
+
     public abstract Rectangle getBounds();
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enable) {
+        this.enabled = enable;
+    }
 
     public float getX() {
         return x;

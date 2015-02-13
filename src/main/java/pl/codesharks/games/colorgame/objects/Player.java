@@ -1,7 +1,7 @@
 package pl.codesharks.games.colorgame.objects;
 
+import pl.codesharks.games.colorgame.GameData;
 import pl.codesharks.games.colorgame.GameEngine;
-import pl.codesharks.games.colorgame.HUD;
 import pl.codesharks.games.colorgame.ID;
 import pl.codesharks.games.colorgame.resources.ColorLib;
 import pl.codesharks.games.colorgame.resources.GameObjectManager;
@@ -73,13 +73,18 @@ public class Player extends GameObject {
         }
     }
 
+    @Override
+    public void start() {
+
+    }
+
     private void checkCollisions() {
         GameObject obj;
         for (int i = 0, length = gameObjectManager.getSize(); i < length; i++) {
             obj = gameObjectManager.objects.get(i);
             if (obj.getId() == ID.BasicEnemy || obj.getId() == ID.FastEnemy || obj.getId() == ID.SmartEnemy) {
                 if (getBounds().intersects(obj.getBounds())) {
-                    HUD.HEALTH -= 5;
+                    GameData.getInstance().subtractHp(5);
                 }
             }
         }

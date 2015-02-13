@@ -5,9 +5,7 @@ import pl.codesharks.games.colorgame.ID;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class SpriteObject extends GameObject {
-    private int HEIGHT;
-    private int WIDTH;
+public final class SpriteObject extends GameObject {
     private BufferedImage image;
 
     public SpriteObject(float x, float y, ID id, BufferedImage image) {
@@ -23,6 +21,11 @@ public class SpriteObject extends GameObject {
     @Override
     public void render(Graphics g, int renderType) {
         g.drawImage(image, (int) x, (int) y, null);
+    }
+
+    @Override
+    public void start() {
+
     }
 
     @Override

@@ -58,6 +58,11 @@ public class Trail extends GameObject implements Cloneable {
         g2d.setComposite(makeTransparent(1));
     }
 
+    @Override
+    public void start() {
+
+    }
+
     public void reset(float newX, float newY) {
         this.step = 0.1f;
         this.alpha = 1f;

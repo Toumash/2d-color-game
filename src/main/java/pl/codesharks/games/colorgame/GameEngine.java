@@ -2,9 +2,11 @@ package pl.codesharks.games.colorgame;
 
 import pl.codesharks.games.colorgame.anim.Animation;
 import pl.codesharks.games.colorgame.anim.SpriteSheet;
-import pl.codesharks.games.colorgame.objects.*;
+import pl.codesharks.games.colorgame.objects.AnimatedObject;
+import pl.codesharks.games.colorgame.objects.BasicEnemy;
+import pl.codesharks.games.colorgame.objects.Player;
 import pl.codesharks.games.colorgame.resources.GameObjectManager;
-import pl.codesharks.games.colorgame.resources.Spawn;
+import pl.codesharks.games.colorgame.resources.ObjectSpawn;
 import pl.codesharks.games.colorgame.resources.SpriteManager;
 
 import javax.swing.*;
@@ -34,13 +36,12 @@ public class GameEngine extends Canvas implements Runnable {
     public GameObjectManager gameObjectManager;
     BufferStrategy bufferStrategy = null;
     Graphics g;
-    private BufferedImage backgroundImage = null;
-    private Image imageImg = null;
     @SuppressWarnings("FieldCanBeLocal")
     private GameScreen gameScreen;
     private HUD hud;
-    private Spawn spawn;
+    private ObjectSpawn objectSpawn;
     private Thread thread;
+    private GameData gameData;
     private volatile boolean running = false;
     private long FPS = 0;
     private double averageRenderMs = 0;
@@ -49,23 +50,21 @@ public class GameEngine extends Canvas implements Runnable {
 
     public GameEngine() {
         setSize(WIDTH, HEIGHT);
+        gameData = GameData.getInstance();
 
-
-        //HANDLERS
         gameObjectManager = GameObjectManager.getInstance();
         this.addKeyListener(new KeyInput(this));
 
-
-        //HUD
         hud = new HUD();
-        //SPAWNER
-        spawn = new Spawn(gameObjectManager, hud);
+        objectSpawn = new ObjectSpawn();
 
-        //WINDOW
-        gameScreen = new GameScreen(WIDTH, HEIGHT, "Cool Game!", GameEngine.this, PREFERENCE_FULLSCREEN);
+        gameData.attach(hud);
+        gameData.attach(objectSpawn);
 
+        gameScreen = new GameScreen(GameEngine.this, "Cool Game!", PREFERENCE_FULLSCREEN);
+
+        cacheSprites();
         loadGameObjects();
-
 
         bufferStrategy = this.getBufferStrategy();
         if (bufferStrategy == null) {
@@ -135,42 +134,40 @@ public class GameEngine extends Canvas implements Runnable {
      */
     private void loadGameObjects() {
         try {
-            SpriteManager spriteManager = SpriteManager.getInstance();
-            backgroundImage = spriteManager.getSprite("background.jpg").image;
+            SpriteManager sManager = SpriteManager.getInstance();
+            {
+                SpriteSheet hs = sManager.loadSpriteSheet("hearts.png", 112, 107);
 
-            if (backgroundImage == null) {
-                showInfoBox("Image is null", "NULL POINTER!!!");
-            }
-            imageImg = spriteManager.getSprite("cool.png").image;
-            if (imageImg == null) {
-                showInfoBox("image is null", "NPE");
-            }
-            SpriteSheet hs = spriteManager.getSpriteSheet("hearts.png", 112, 107);
-
-            BufferedImage[] heartRes = new BufferedImage[14];
-            for (int i = 0, arrayIndex = 0; i < 2; i++) {
-                for (int j = 0; j < 7; j++, arrayIndex++) {
-                    heartRes[arrayIndex] = hs.getSprite(j, i);
+                BufferedImage[] heartRes = new BufferedImage[14];
+                for (int i = 0, arrayIndex = 0; i < 2; i++) {
+                    for (int j = 0; j < 7; j++, arrayIndex++) {
+                        heartRes[arrayIndex] = hs.getSprite(j, i);
+                    }
                 }
+                Animation anim = new Animation(heartRes, 20);
+                gameObjectManager.addObject(new AnimatedObject(GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2, ID.Neutral, anim));
             }
 
-            Animation anim = new Animation(heartRes, 20);
-            gameObjectManager.addObject(new AnimatedObject(GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2, ID.SmartEnemy, anim));
 
-            //OBJECTS
             Random r = new Random();
-
             for (int i = 0; i < 2; i++) {
                 gameObjectManager.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy));
             }
 
             gameObjectManager.addObject(new Player(200, 200, ID.Player));
-            gameObjectManager.addObject(new FloatingObject(250, 250, ID.Player, new SpriteObject(250, 250, ID.SmartEnemy, SpriteManager.getInstance().getSprite("cool.png").image)));
-
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("failed to load resources: " + e.getMessage());
             System.exit(1);
+        }
+    }
+
+    public void cacheSprites() {
+        SpriteManager sm = SpriteManager.getInstance();
+        String[] sprites = {"razem.png", "hearts.png", "cool.png"};
+
+        for (String sprite : sprites) {
+            sm.loadSprite(sprite);
         }
     }
 
@@ -245,11 +242,10 @@ public class GameEngine extends Canvas implements Runnable {
     private void render(double deltaMs) {
         Graphics2D g2d = (Graphics2D) g;
         g.clearRect(0, 0, WIDTH, HEIGHT);
+
         //BACKGROUND
         g.setColor(SCREEN_BACKGROUND_COLOR);
         g.fillRect(0, 0, WIDTH, HEIGHT);
-
-        g2d.drawImage(backgroundImage, WIDTH / 2 - (backgroundImage.getWidth(null) / 2), HEIGHT / 2 - (backgroundImage.getHeight(null) / 2), null);
 
         gameObjectManager.render(g);
         hud.render(g, FPS, averageRenderMs);
@@ -260,9 +256,10 @@ public class GameEngine extends Canvas implements Runnable {
     }
 
     private void update(float deltaTime) {
+        gameData.update();
         gameObjectManager.update(deltaTime);
         hud.update();
-        spawn.update();
+        objectSpawn.update();
     }
 
     public void startGame() {

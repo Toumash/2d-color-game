@@ -2,6 +2,7 @@ package pl.codesharks.games.colorgame;
 
 import pl.codesharks.games.colorgame.objects.GameObject;
 import pl.codesharks.games.colorgame.objects.Player;
+import pl.codesharks.games.colorgame.resources.GameObjectManager;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

@@ -1,6 +1,6 @@
 package pl.codesharks.games.colorgame.objects;
 
-import pl.codesharks.games.colorgame.GameObjectManager;
+import pl.codesharks.games.colorgame.ID;
 
 import java.awt.*;
 
@@ -13,10 +13,9 @@ public class Trail extends GameObject implements Cloneable {
      */
     public float step;
     public volatile float alpha = 1f;
-    private GameObjectManager gameObjectManager;
     private ID id;
 
-    public Trail(int x, int y, ID id, Color color, int width, int height, float step, GameObjectManager gameObjectManager) {
+    public Trail(int x, int y, ID id, Color color, int width, int height, float step) {
         super(x, y, id);
         this.id = id;
         this.color = color;
@@ -24,7 +23,6 @@ public class Trail extends GameObject implements Cloneable {
         this.height = height;
         this.step = step;
 
-        this.gameObjectManager = gameObjectManager;
     }
 
     private AlphaComposite makeTransparent(float alpha) {

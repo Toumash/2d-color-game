@@ -1,6 +1,11 @@
 package pl.codesharks.games.colorgame;
 
+import pl.codesharks.games.colorgame.anim.Animation;
+import pl.codesharks.games.colorgame.anim.SpriteSheet;
 import pl.codesharks.games.colorgame.objects.*;
+import pl.codesharks.games.colorgame.resources.GameObjectManager;
+import pl.codesharks.games.colorgame.resources.Spawn;
+import pl.codesharks.games.colorgame.resources.SpriteManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,11 +49,12 @@ public class GameEngine extends Canvas implements Runnable {
 
     public GameEngine() {
         setSize(WIDTH, HEIGHT);
-        loadResources();
+
 
         //HANDLERS
-        gameObjectManager = new GameObjectManager();
+        gameObjectManager = GameObjectManager.getInstance();
         this.addKeyListener(new KeyInput(this));
+
 
         //HUD
         hud = new HUD();
@@ -58,15 +64,7 @@ public class GameEngine extends Canvas implements Runnable {
         //WINDOW
         gameScreen = new GameScreen(WIDTH, HEIGHT, "Cool Game!", GameEngine.this, PREFERENCE_FULLSCREEN);
 
-        //OBJECTS
-        Random r = new Random();
-
-        for (int i = 0; i < 2; i++) {
-            gameObjectManager.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy, gameObjectManager));
-        }
-
-        gameObjectManager.addObject(new Player(200, 200, ID.Player, gameObjectManager));
-        gameObjectManager.addObject(new FloatingImage(250, 250, ID.Player, imageImg, gameObjectManager));
+        loadGameObjects();
 
 
         bufferStrategy = this.getBufferStrategy();
@@ -135,21 +133,43 @@ public class GameEngine extends Canvas implements Runnable {
     /**
      * Loads all images to memory
      */
-    private void loadResources() {
+    private void loadGameObjects() {
         try {
             SpriteManager spriteManager = SpriteManager.getInstance();
-            Image bgImg = spriteManager.getSprite("background.jpg").image;
+            backgroundImage = spriteManager.getSprite("background.jpg").image;
 
-            if (bgImg == null) {
+            if (backgroundImage == null) {
                 showInfoBox("Image is null", "NULL POINTER!!!");
             }
             imageImg = spriteManager.getSprite("cool.png").image;
             if (imageImg == null) {
                 showInfoBox("image is null", "NPE");
             }
-            backgroundImage = SpriteManager.toCompatibleImage(SpriteManager.toBufferedImage(bgImg));
+            SpriteSheet hs = spriteManager.getSpriteSheet("hearts.png", 112, 107);
+
+            BufferedImage[] heartRes = new BufferedImage[14];
+            for (int i = 0, arrayIndex = 0; i < 2; i++) {
+                for (int j = 0; j < 7; j++, arrayIndex++) {
+                    heartRes[arrayIndex] = hs.getSprite(j, i);
+                }
+            }
+
+            Animation anim = new Animation(heartRes, 20);
+            gameObjectManager.addObject(new AnimatedObject(GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2, ID.SmartEnemy, anim));
+
+            //OBJECTS
+            Random r = new Random();
+
+            for (int i = 0; i < 2; i++) {
+                gameObjectManager.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy));
+            }
+
+            gameObjectManager.addObject(new Player(200, 200, ID.Player));
+            gameObjectManager.addObject(new FloatingObject(250, 250, ID.Player, new SpriteObject(250, 250, ID.SmartEnemy, SpriteManager.getInstance().getSprite("cool.png").image)));
+
         } catch (Exception e) {
-            System.err.println("failed to load resources" + e.getMessage());
+            e.printStackTrace();
+            System.err.println("failed to load resources: " + e.getMessage());
             System.exit(1);
         }
     }
@@ -230,7 +250,6 @@ public class GameEngine extends Canvas implements Runnable {
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
         g2d.drawImage(backgroundImage, WIDTH / 2 - (backgroundImage.getWidth(null) / 2), HEIGHT / 2 - (backgroundImage.getHeight(null) / 2), null);
-        // g.drawImage(backgroundImage, WIDTH / 2 - (backgroundImage.getWidth(null) / 2), HEIGHT / 2 - (backgroundImage.getHeight(null) / 2), null);
 
         gameObjectManager.render(g);
         hud.render(g, FPS, averageRenderMs);
@@ -241,9 +260,9 @@ public class GameEngine extends Canvas implements Runnable {
     }
 
     private void update(float deltaTime) {
-        gameObjectManager.tick(deltaTime);
-        hud.tick();
-        spawn.tick();
+        gameObjectManager.update(deltaTime);
+        hud.update();
+        spawn.update();
     }
 
     public void startGame() {
@@ -258,5 +277,11 @@ public class GameEngine extends Canvas implements Runnable {
         synchronized (lock) {
             this.running = false;
         }
+        try {
+            thread.join(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        thread = null;
     }
 }

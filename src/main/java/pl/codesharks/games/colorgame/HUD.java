@@ -1,5 +1,8 @@
 package pl.codesharks.games.colorgame;
 
+import pl.codesharks.games.colorgame.resources.ColorLib;
+import pl.codesharks.games.colorgame.resources.FontLib;
+
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -10,7 +13,7 @@ public class HUD {
     private int score = 0;
     private int level = 1;
 
-    public void tick() {
+    public void update() {
         HEALTH = GameEngine.clamp(HEALTH, 0, 100);
         score++;
     }
@@ -31,7 +34,7 @@ public class HUD {
 
             Font f = g.getFont();
             g.setFont(FontLib.END_GAME);
-            RenderUtils.drawStringAtCenter(g, "YOU LOST", 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2);
+            RenderUtils.drawStringAtCenter(g, "YOU LOST : C", 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2);
             g.setFont(f);
         }
 

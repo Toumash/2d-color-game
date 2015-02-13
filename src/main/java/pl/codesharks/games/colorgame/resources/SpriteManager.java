@@ -1,4 +1,6 @@
-package pl.codesharks.games.colorgame.objects;
+package pl.codesharks.games.colorgame.resources;
+
+import pl.codesharks.games.colorgame.anim.SpriteSheet;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -8,13 +10,11 @@ import java.net.URL;
 import java.util.HashMap;
 
 /**
- * <p/>
- * [singleton]
- * <p/>
+ * SINGLETON
  *
  * @author Toumash
  */
-public class SpriteManager {
+public final class SpriteManager {
     public static final String SPRITES_DIR = "/images/";
     private static SpriteManager _instance = new SpriteManager();
     private HashMap<String, Sprite> sprites = new HashMap<String, Sprite>();
@@ -23,12 +23,14 @@ public class SpriteManager {
         return _instance;
     }
 
-    public static Image getImage(String filename) {
-         return Toolkit.getDefaultToolkit().getImage(_instance.getClass().getResource("/images/" + filename));
-     }
+    protected static Image getImage(String filename) {
+        return Toolkit.getDefaultToolkit().getImage(_instance.getClass().getResource("/images/" + filename));
+    }
+
     protected static Image getImage(URL url) {
         return Toolkit.getDefaultToolkit().getImage(url);
     }
+
     protected static BufferedImage getBufferedImage(URL url) throws IOException {
         return ImageIO.read(url);
     }
@@ -59,7 +61,7 @@ public class SpriteManager {
      * @param image image to be optimized
      * @return faster to render image
      */
-    public static BufferedImage toCompatibleImage(BufferedImage image) {
+    protected static BufferedImage toCompatibleImage(BufferedImage image) {
         GraphicsConfiguration gfx_config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
         if (image.getColorModel().equals(gfx_config.getColorModel())) return image;
         BufferedImage optimalImage = gfx_config.createCompatibleImage(image.getWidth(), image.getHeight(), image.getTransparency());
@@ -69,7 +71,7 @@ public class SpriteManager {
         return optimalImage;
     }
 
-    public static URL createUrl(String filename) {
+    protected static URL createUrl(String filename) {
         return _instance.getClass().getResource(SPRITES_DIR + filename);
     }
 
@@ -110,6 +112,10 @@ public class SpriteManager {
         sprites.put(ref, sprite);
 
         return sprite;
+    }
+
+    public SpriteSheet getSpriteSheet(String ref, int tileSizeX, int tileSizeY) {
+        return getSprite(ref).toSpriteSheet(tileSizeX, tileSizeY);
     }
 
     /**

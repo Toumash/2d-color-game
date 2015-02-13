@@ -1,4 +1,4 @@
-package pl.codesharks.games.colorgame;
+package pl.codesharks.games.colorgame.resources;
 
 import java.awt.*;
 

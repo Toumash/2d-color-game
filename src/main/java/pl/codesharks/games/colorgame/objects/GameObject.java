@@ -1,6 +1,6 @@
 package pl.codesharks.games.colorgame.objects;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import pl.codesharks.games.colorgame.ID;
 
 import java.awt.*;
 
@@ -9,7 +9,6 @@ public abstract class GameObject implements Cloneable {
     public static final int RENDER_TYPE_DEFAULT = 0;
     public static final int RENDER_TYPE_BOUNDS = 1;
 
-    protected Vector2D position;
     protected float x, y;
     protected ID id;
     protected float velX, velY;

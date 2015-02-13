@@ -1,11 +1,14 @@
-package pl.codesharks.games.colorgame.objects;
+package pl.codesharks.games.colorgame.resources;
+
+import pl.codesharks.games.colorgame.anim.SpriteSheet;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public final class Sprite {
+public class Sprite {
     //TODO::CHANGE PUBLIC TO PRIVATE ONCE COMPLETED OBJECTS->Sprites Transform
     public BufferedImage image;
+
 
     public Sprite(BufferedImage image) {
         this.image = image;
@@ -23,7 +26,8 @@ public final class Sprite {
         return image.getHeight(null);
     }
 
-    public void draw(Graphics g, int x, int y) {
-        g.drawImage(image, x, y, null);
+    public SpriteSheet toSpriteSheet(int tileSizeX, int tileSizeY) {
+        return new SpriteSheet(this.image, tileSizeX, tileSizeY);
     }
+
 }

@@ -1,4 +1,7 @@
-package pl.codesharks.games.colorgame;
+package pl.codesharks.games.colorgame.resources;
+
+import pl.codesharks.games.colorgame.HUD;
+import pl.codesharks.games.colorgame.resources.GameObjectManager;
 
 import java.util.Random;
 
@@ -18,7 +21,7 @@ public class Spawn {
         this.hud = hud;
     }
 
-    public void tick() {
+    public void update() {
         scoreKeep++;
         if (scoreKeep >= 50) {
             scoreKeep = 0;

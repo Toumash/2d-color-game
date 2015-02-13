@@ -1,18 +1,14 @@
 package pl.codesharks.games.colorgame;
 
-import pl.codesharks.games.colorgame.objects.BasicEnemy;
-import pl.codesharks.games.colorgame.objects.FloatingImage;
-import pl.codesharks.games.colorgame.objects.ID;
-import pl.codesharks.games.colorgame.objects.Player;
-import pl.codesharks.games.colorgame.resources.GameScreen;
-import pl.codesharks.games.colorgame.resources.ResourceLoader;
+import pl.codesharks.games.colorgame.objects.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
-public class Game extends Canvas implements Runnable {
+public class GameEngine extends Canvas implements Runnable {
 
     public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(WIDTH * 9) / 10;
     public static final boolean PREFERENCE_FULLSCREEN = false;
@@ -23,16 +19,17 @@ public class Game extends Canvas implements Runnable {
      * Don't use greater, it will blow your computer
      */
     public static final int FPS_LIMIT_OVERALL = 400;
+    public static final Color BACKGROUND_COLOR = Color.decode("#283339");
+    public static final Color SCREEN_BACKGROUND_COLOR = BACKGROUND_COLOR;
+    public static final int DEBUG_HUD_REFRESH_INTERVAL = 1000;
     static final double SLEEP_TIME_OPTIMAL = 1000 / (double) FPS_LIMIT;
     static final double SLEEP_TIME_MIN = 1000 / (double) FPS_LIMIT_OVERALL;
-
     private static final long serialVersionUID = 5739050383772454388L;
-
     private final Object lock = new Object();
-    public Handler handler;
+    public GameObjectManager gameObjectManager;
     BufferStrategy bufferStrategy = null;
-    Graphics buffer;
-    private Image bgImg = null;
+    Graphics g;
+    private BufferedImage backgroundImage = null;
     private Image imageImg = null;
     @SuppressWarnings("FieldCanBeLocal")
     private GameScreen gameScreen;
@@ -41,42 +38,35 @@ public class Game extends Canvas implements Runnable {
     private Thread thread;
     private volatile boolean running = false;
     private long FPS = 0;
-    private double mRenderTime = 0;
+    private double averageRenderMs = 0;
     private int frameCounter = 0;
+    private boolean paused = false;
 
-    public Game() {
-        //GRAPHICS
-        bgImg = ResourceLoader.getImage("background.jpg");
-
-        if (bgImg == null) {
-            showInfoBox("Image is null", "NULL POINTER!!!");
-        }
-        imageImg = ResourceLoader.getImage("cool.png");
-        if (imageImg == null) {
-            showInfoBox("image is null", "NPE");
-        }
+    public GameEngine() {
+        setSize(WIDTH, HEIGHT);
+        loadResources();
 
         //HANDLERS
-        handler = new Handler();
+        gameObjectManager = new GameObjectManager();
         this.addKeyListener(new KeyInput(this));
 
         //HUD
         hud = new HUD();
         //SPAWNER
-        spawn = new Spawn(handler, hud);
+        spawn = new Spawn(gameObjectManager, hud);
 
         //WINDOW
-        gameScreen = new GameScreen(WIDTH, HEIGHT, "Cool Game!", Game.this, PREFERENCE_FULLSCREEN);
+        gameScreen = new GameScreen(WIDTH, HEIGHT, "Cool Game!", GameEngine.this, PREFERENCE_FULLSCREEN);
 
         //OBJECTS
         Random r = new Random();
 
         for (int i = 0; i < 2; i++) {
-            handler.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy, handler));
+            gameObjectManager.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy, gameObjectManager));
         }
 
-        handler.addObject(new Player(200, 200, ID.Player, handler));
-        handler.addObject(new FloatingImage(250, 250, ID.Player, imageImg, handler));
+        gameObjectManager.addObject(new Player(200, 200, ID.Player, gameObjectManager));
+        gameObjectManager.addObject(new FloatingImage(250, 250, ID.Player, imageImg, gameObjectManager));
 
 
         bufferStrategy = this.getBufferStrategy();
@@ -93,7 +83,7 @@ public class Game extends Canvas implements Runnable {
     }
 
     public static void main(String[] args) {
-        new Game();
+        new GameEngine();
     }
 
     /**
@@ -124,10 +114,44 @@ public class Game extends Canvas implements Runnable {
     public static float clamp(float var, float min, float max) {
         float out = var;
 
-        if (var >= max) out = max;
-        else if (var <= min) out = min;
+        if (var > max) out = max;
+        else if (var < min) out = min;
 
         return out;
+    }
+
+    public boolean isPaused() {
+        synchronized (lock) {
+            return paused;
+        }
+    }
+
+    public void setPaused(boolean pause) {
+        synchronized (lock) {
+            this.paused = pause;
+        }
+    }
+
+    /**
+     * Loads all images to memory
+     */
+    private void loadResources() {
+        try {
+            SpriteManager spriteManager = SpriteManager.getInstance();
+            Image bgImg = spriteManager.getSprite("background.jpg").image;
+
+            if (bgImg == null) {
+                showInfoBox("Image is null", "NULL POINTER!!!");
+            }
+            imageImg = spriteManager.getSprite("cool.png").image;
+            if (imageImg == null) {
+                showInfoBox("image is null", "NPE");
+            }
+            backgroundImage = SpriteManager.toCompatibleImage(SpriteManager.toBufferedImage(bgImg));
+        } catch (Exception e) {
+            System.err.println("failed to load resources" + e.getMessage());
+            System.exit(1);
+        }
     }
 
     /**
@@ -146,23 +170,35 @@ public class Game extends Canvas implements Runnable {
         long lastLoopTime = System.nanoTime();
         //The last time at which we recorded the frame rate
         double msToUpdateFPSHUD = 0;
-        buffer = bufferStrategy.getDrawGraphics();
+        g = bufferStrategy.getDrawGraphics();
+
+        // supplied for computing and displaying average of 1s render time
+        double sumOfLastIRenderTime = 0;
 
         while (running) {
             long renderStartTime = System.nanoTime();
             double deltaMs = (renderStartTime - lastLoopTime) / 1000000.0d;
             lastLoopTime = renderStartTime;
 
+
             msToUpdateFPSHUD += deltaMs;
             frameCounter++;
 
-            tick((float) (deltaMs / 100.0f));
+            boolean pause;
+            synchronized (lock) {
+                pause = isPaused();
+            }
+            if (!pause) {
+                update((float) (deltaMs / 100.0f));
+            }
             render(deltaMs);
 
             long renderEndTime = System.nanoTime();
-            if (msToUpdateFPSHUD >= 1000) {
+            sumOfLastIRenderTime += (renderEndTime - renderStartTime) / 1000000.0d;
+            if (msToUpdateFPSHUD >= DEBUG_HUD_REFRESH_INTERVAL) {
                 FPS = frameCounter;
-                mRenderTime = (renderEndTime - renderStartTime) / 1000000.0d;
+                averageRenderMs = sumOfLastIRenderTime / frameCounter; //(renderEndTime - renderStartTime) / 1000000.0d;
+                sumOfLastIRenderTime = 0;
                 msToUpdateFPSHUD = 0;
                 frameCounter = 0;
             }
@@ -187,24 +223,25 @@ public class Game extends Canvas implements Runnable {
     }
 
     private void render(double deltaMs) {
-        if (running) {
-            buffer.clearRect(0, 0, WIDTH, HEIGHT);
-            //BACKGROUND
-            buffer.setColor(Color.BLACK);
-            buffer.fillRect(0, 0, WIDTH, HEIGHT);
+        Graphics2D g2d = (Graphics2D) g;
+        g.clearRect(0, 0, WIDTH, HEIGHT);
+        //BACKGROUND
+        g.setColor(SCREEN_BACKGROUND_COLOR);
+        g.fillRect(0, 0, WIDTH, HEIGHT);
 
-            buffer.drawImage(bgImg, WIDTH / 2 - (bgImg.getWidth(null) / 2), HEIGHT / 2 - (bgImg.getHeight(null) / 2), null);
+        g2d.drawImage(backgroundImage, WIDTH / 2 - (backgroundImage.getWidth(null) / 2), HEIGHT / 2 - (backgroundImage.getHeight(null) / 2), null);
+        // g.drawImage(backgroundImage, WIDTH / 2 - (backgroundImage.getWidth(null) / 2), HEIGHT / 2 - (backgroundImage.getHeight(null) / 2), null);
 
-            handler.render(buffer);
-            hud.render(buffer, FPS, mRenderTime);
+        gameObjectManager.render(g);
+        hud.render(g, FPS, averageRenderMs);
 
-            // buffer.dispose();
-            bufferStrategy.show();
-        }
+        // g.dispose();
+        bufferStrategy.show();
+
     }
 
-    private void tick(float deltaTime) {
-        handler.tick(deltaTime);
+    private void update(float deltaTime) {
+        gameObjectManager.tick(deltaTime);
         hud.tick();
         spawn.tick();
     }
@@ -220,7 +257,6 @@ public class Game extends Canvas implements Runnable {
     public void stop() {
         synchronized (lock) {
             this.running = false;
-            thread.stop();
         }
     }
 }

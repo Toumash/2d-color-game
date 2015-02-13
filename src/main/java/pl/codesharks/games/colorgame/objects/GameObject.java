@@ -5,9 +5,9 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
-public abstract class GameObject {
-    public static final int RENDER_TYPE_DEFAULT =0;
-    public static final int RENDER_TYPE_BOUNDS =1;
+public abstract class GameObject implements Cloneable {
+    public static final int RENDER_TYPE_DEFAULT = 0;
+    public static final int RENDER_TYPE_BOUNDS = 1;
 
     protected Vector2D position;
     protected float x, y;
@@ -66,5 +66,9 @@ public abstract class GameObject {
         this.velY = velY;
     }
 
+    @Override
+    public GameObject clone() throws CloneNotSupportedException {
+        return (GameObject) super.clone();
+    }
 }
 

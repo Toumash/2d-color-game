@@ -4,36 +4,41 @@ import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
 public class HUD {
-
     public static int HEALTH = 100;
-    private static int greenValue = 255;
 
+    private static int greenValue = 255;
     private int score = 0;
     private int level = 1;
 
     public void tick() {
-        HEALTH = Game.clamp(HEALTH, 0, 100);
-        greenValue = HEALTH * 2;
-        greenValue = Game.clamp(greenValue, 90, 255);
-
+        HEALTH = GameEngine.clamp(HEALTH, 0, 100);
         score++;
     }
 
-    public void render(Graphics g,long fps,double renderTime) {
-        g.setColor(Color.GRAY);
-        g.fillRect(15, 15, 200, 32);
+    public void render(Graphics g, long fps, double renderTime) {
+        g.setColor(ColorLib.HUD_GRAY);
 
-        g.setColor(new Color(75, greenValue, 0));
-        g.fillRect(15, 15, HEALTH * 2, 32);
+        if (HEALTH > 0) {
+            g.setColor(ColorLib.HEALTH_BAR_BACKGROUND);
+            g.fillRect(15, 15, 200, 32);
 
-        g.setColor(Color.WHITE);
-        g.drawRect(15, 15, 200, 32);
+            g.setColor(ColorLib.HEALTH_BAR_HEALTH);
+            g.fillRect(15, 15, HEALTH * 2, 32);
 
+            g.setColor(Color.WHITE);
+            g.drawRect(15, 15, 200, 32);
+        } else {
 
-        g.drawString("Score: " + score, 10, Game.HEIGHT - 64);
-        g.drawString("Level: " + level, 10, Game.HEIGHT - 32);
-        g.drawString("FPS: " + fps, 10, 20);
-        g.drawString(String.format("Render time: %3.2f ms" , renderTime), 10, 60);
+            Font f = g.getFont();
+            g.setFont(FontLib.END_GAME);
+            RenderUtils.drawStringAtCenter(g, "YOU LOST", 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2);
+            g.setFont(f);
+        }
+
+        g.drawString("Score: " + score, 10, GameEngine.HEIGHT - 64);
+        g.drawString("Level: " + level, 10, GameEngine.HEIGHT - 32);
+        g.drawString("FPS: " + fps, 10, 70);
+        g.drawString(String.format("Render time: %3.2f ms", renderTime), 10, 60);
 /*        System.out.println("FPS: " + fps);
         System.out.println("Render Time: " + renderTime);*/
     }

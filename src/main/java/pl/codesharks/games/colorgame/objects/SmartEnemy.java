@@ -1,9 +1,11 @@
 package pl.codesharks.games.colorgame.objects;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import pl.codesharks.games.colorgame.Handler;
+import pl.codesharks.games.colorgame.GameObjectManager;
 
 import java.awt.*;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 
 public class SmartEnemy extends GameObject {
@@ -13,20 +15,22 @@ public class SmartEnemy extends GameObject {
     public static final int WIDTH = 16;
     public static final int MAX_SPEED_X = 25;
     public static final int MAX_SPEED_Y = 25;
+    public static final int MAX_TRAIL_AMOUNT = 10;
     public final int TRAIL_STEP_X = 5;
     public final int TRAIL_STEP_Y = 5;
+    public volatile Queue<Trail> trails = new ArrayDeque<Trail>();
     float lastTrailX = x;
     float lastTrailY = y;
-    private Handler handler;
+    private GameObjectManager gameObjectManager;
     private GameObject player;
 
-    public SmartEnemy(int x, int y, ID id, Handler handler) {
+    public SmartEnemy(int x, int y, ID id, GameObjectManager gameObjectManager) {
         super(x, y, id);
-        this.handler = handler;
+        this.gameObjectManager = gameObjectManager;
 
-        for (int i = 0; i < handler.objects.size(); i++) {
-            if (handler.objects.get(i).getId() == ID.Player) {
-                player = handler.objects.get(i);
+        for (int i = 0, length = gameObjectManager.getSize(); i < length; i++) {
+            if (gameObjectManager.objects.get(i) instanceof Player) {
+                player = gameObjectManager.objects.get(i);
                 break;
             }
         }
@@ -40,9 +44,19 @@ public class SmartEnemy extends GameObject {
         y += directionVector.getY() * deltaTime * MAX_SPEED_Y;
 
         if (Math.abs(lastTrailX - x) >= TRAIL_STEP_X || Math.abs(lastTrailY - y) >= TRAIL_STEP_Y) {
-            handler.addObject(new Trail((int) x, (int) y, ID.Trail, color, WIDTH, HEIGHT, 0.1f, handler));
+            if (trails.size() < MAX_TRAIL_AMOUNT) {
+                trails.add(new Trail((int) x, (int) y, ID.Trail, color, WIDTH, HEIGHT, 0.1f, gameObjectManager));
+            } else {
+                Trail tmp = trails.poll();
+                tmp.reset(x, y);
+                trails.add(tmp);
+            }
             lastTrailX = x;
             lastTrailY = y;
+        }
+
+        for (Trail t : trails) {
+            t.update(deltaTime);
         }
     }
 
@@ -58,7 +72,9 @@ public class SmartEnemy extends GameObject {
             case RENDER_TYPE_BOUNDS:
                 g2d.draw(getBounds());
                 break;
-
+        }
+        for (Trail t : trails) {
+            t.render(g, renderType);
         }
     }
 

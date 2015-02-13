@@ -1,6 +1,6 @@
 package pl.codesharks.games.colorgame.objects;
 
-import pl.codesharks.games.colorgame.Handler;
+import pl.codesharks.games.colorgame.GameObjectManager;
 
 import java.awt.*;
 
@@ -19,12 +19,13 @@ public class FloatingImage extends GameObject {
     float speed = 20;
     float angle = -90;
     float toDegrees = (float) (Math.PI / 180);
-    private Handler handler;
+    private GameObjectManager gameObjectManager;
     private Image mImage;
 
-    public FloatingImage(int x, int y, ID id,Image image, Handler handler) {
+
+    public FloatingImage(int x, int y, ID id, Image image, GameObjectManager gameObjectManager) {
         super(x, y, id);
-        this.handler = handler;
+        this.gameObjectManager = gameObjectManager;
         startHeight = y;
         mImage = image;
     }
@@ -33,11 +34,8 @@ public class FloatingImage extends GameObject {
 
         angle += speed * deltaTime;
         if (angle > 270) angle -= 360;
-       // System.out.println(MAX_Y * Math.sin(angle * toDegrees));
+        // System.out.println(MAX_Y * Math.sin(angle * toDegrees));
         y = (float) (startHeight + MAX_Y * (Math.sin(angle * toDegrees)) / 2.0);
-
-
-        handler.addObject(new Trail((int) x, (int) y, ID.Trail, Color.RED, 16, 16, 0.1f, handler));
     }
 
     @Override
@@ -47,13 +45,12 @@ public class FloatingImage extends GameObject {
 
         switch (renderType) {
             case GameObject.RENDER_TYPE_DEFAULT:
-                g.fillRect((int) x, (int) y, 16, 16);
+                // g.fillRect((int) x, (int) y, 16, 16);
                 g.drawImage(mImage, (int) x, (int) y, null);
                 break;
             case GameObject.RENDER_TYPE_BOUNDS:
                 g2d.draw(getBounds());
                 break;
-
         }
     }
 

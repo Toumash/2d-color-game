@@ -1,7 +1,6 @@
 package pl.codesharks.games.colorgame;
 
 import pl.codesharks.games.colorgame.objects.GameObject;
-import pl.codesharks.games.colorgame.objects.ID;
 import pl.codesharks.games.colorgame.objects.Player;
 
 import java.awt.event.KeyAdapter;
@@ -14,14 +13,14 @@ public class KeyInput extends KeyAdapter {
     public static final int KEY_DOWN = 1;
     public static final int KEY_LEFT = 2;
     public static final int KEY_RIGHT = 3;
-    private Handler handler;
-    private Game game;
+    private GameObjectManager gameObjectManager;
+    private GameEngine gameEngine;
     private boolean[] keyDown = new boolean[4];
 
 
-    public KeyInput(Game game) {
-        this.game = game;
-        this.handler = game.handler;
+    public KeyInput(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
+        this.gameObjectManager = gameEngine.gameObjectManager;
 
         Arrays.fill(keyDown, false);
     }
@@ -32,54 +31,60 @@ public class KeyInput extends KeyAdapter {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_F11) {
-            game.switchFullscreen();
+            gameEngine.switchFullscreen();
             return;
+        }else if(key == KeyEvent.VK_F1){
+            gameEngine.setPaused(!gameEngine.isPaused());
         }
 
-        for (int i = 0; i < handler.objects.size(); i++) {
-            GameObject tempObject = handler.objects.get(i);
+        for (int i = 0, length = gameObjectManager.getSize(); i < length; i++) {
+            GameObject object = gameObjectManager.objects.get(i);
 
-            if (tempObject.getId() == ID.Player) {
+            if (object instanceof Player) {
+                Player player = (Player) object;
                 if (key == KeyEvent.VK_W) {
-                    tempObject.setVelY(-Player.MAX_SPEED_Y);
+                    object.setVelY(-Player.MAX_SPEED_Y);
                     keyDown[KEY_UP] = true;
                 } else if (key == KeyEvent.VK_S) {
-                    tempObject.setVelY(Player.MAX_SPEED_Y);
+                    object.setVelY(Player.MAX_SPEED_Y);
                     keyDown[KEY_DOWN] = true;
                 } else if (key == KeyEvent.VK_A) {
-                    tempObject.setVelX(-Player.MAX_SPEED_X);
+                    object.setVelX(-Player.MAX_SPEED_X);
                     keyDown[KEY_LEFT] = true;
                 } else if (key == KeyEvent.VK_D) {
-                    tempObject.setVelX(Player.MAX_SPEED_X);
+                    object.setVelX(Player.MAX_SPEED_X);
                     keyDown[KEY_RIGHT] = true;
                 }
                 break;
             }
 
         }
-        if (key == KeyEvent.VK_ESCAPE) System.exit(0);
+        if (key == KeyEvent.VK_ESCAPE) {
+            System.out.println("Application quit by Escape Button");
+            System.exit(0);
+        }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         int key = e.getKeyCode();
 
-        for (int i = 0, length = handler.objects.size(); i < length; i++) {
-            GameObject tempObject = handler.objects.get(i);
+        for (int i = 0, length = gameObjectManager.getSize(); i < length; i++) {
+            GameObject object = gameObjectManager.objects.get(i);
 
-            if (tempObject.getId() == ID.Player) {
+            if (object instanceof Player) {
                 if (key == KeyEvent.VK_W) keyDown[KEY_UP] = false;
-                else if (key == KeyEvent.VK_S) keyDown[KEY_DOWN] = false;//tempObject.setVelY(0);
-                else if (key == KeyEvent.VK_A) keyDown[KEY_LEFT] = false;//tempObject.setVelX(0);
-                else if (key == KeyEvent.VK_D) keyDown[KEY_RIGHT] = false;//tempObject.setVelX(0);
+                else if (key == KeyEvent.VK_S) keyDown[KEY_DOWN] = false;//object.setVelY(0);
+                else if (key == KeyEvent.VK_A) keyDown[KEY_LEFT] = false;//object.setVelX(0);
+                else if (key == KeyEvent.VK_D) keyDown[KEY_RIGHT] = false;//object.setVelX(0);
 
                 //vertical movement
-                if (!keyDown[KEY_UP] && !keyDown[KEY_DOWN]) tempObject.setVelY(0);
-                else if (keyDown[KEY_UP] && keyDown[KEY_DOWN]) tempObject.setVelY(0);
+                if (!keyDown[KEY_UP] && !keyDown[KEY_DOWN]) object.setVelY(0);
+                else if (keyDown[KEY_UP] && keyDown[KEY_DOWN]) object.setVelY(0);
 
                 //horizontal movement
-                if (!keyDown[KEY_LEFT] && !keyDown[KEY_RIGHT]) tempObject.setVelX(0);
-                else if (keyDown[KEY_LEFT] && keyDown[KEY_RIGHT]) tempObject.setVelX(0);
+                if (!keyDown[KEY_LEFT] && !keyDown[KEY_RIGHT]) object.setVelX(0);
+                else if (keyDown[KEY_LEFT] && keyDown[KEY_RIGHT]) object.setVelX(0);
                 break;
             }
         }

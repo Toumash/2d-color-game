@@ -1,31 +1,30 @@
 package pl.codesharks.games.colorgame.objects;
 
-import pl.codesharks.games.colorgame.Handler;
+import pl.codesharks.games.colorgame.GameObjectManager;
 
 import java.awt.*;
 
-public class Trail extends GameObject {
+public class Trail extends GameObject implements Cloneable {
 
     private final Color color;
     private final int height, width;
-    private float alpha = 1f;
-    private Handler handler;
-    private ID id;
-
     /**
      * 0.001 - 0.1
      */
-    private float life;
+    public float step;
+    public volatile float alpha = 1f;
+    private GameObjectManager gameObjectManager;
+    private ID id;
 
-    public Trail(int x, int y, ID id, Color color, int width, int height, float life, Handler handler) {
+    public Trail(int x, int y, ID id, Color color, int width, int height, float step, GameObjectManager gameObjectManager) {
         super(x, y, id);
         this.id = id;
         this.color = color;
         this.width = width;
         this.height = height;
-        this.life = life;
+        this.step = step;
 
-        this.handler = handler;
+        this.gameObjectManager = gameObjectManager;
     }
 
     private AlphaComposite makeTransparent(float alpha) {
@@ -35,10 +34,11 @@ public class Trail extends GameObject {
 
     @Override
     public void update(float deltaTime) {
-        if (alpha > life) {
-            alpha -= life;
-        } else {
-            handler.removeObject(this);
+        if (alpha > 0) {
+            alpha -= step;
+        }
+        if (alpha < 0) {
+            alpha = 0;
         }
     }
 
@@ -53,12 +53,23 @@ public class Trail extends GameObject {
             case RENDER_TYPE_DEFAULT:
                 g.fillRect((int) x, (int) y, width, height);
                 break;
-
             case RENDER_TYPE_BOUNDS:
                 g.drawRect((int) x, (int) y, width, height);
                 break;
         }
         g2d.setComposite(makeTransparent(1));
+    }
+
+    public void reset(float newX, float newY) {
+        this.step = 0.1f;
+        this.alpha = 1f;
+        this.setX(newX);
+        this.setY(newY);
+    }
+
+    @Override
+    public Trail clone() throws CloneNotSupportedException {
+        return (Trail) super.clone();
     }
 
     @Override

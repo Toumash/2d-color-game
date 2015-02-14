@@ -1,8 +1,5 @@
 package pl.codesharks.games.colorgame.anim;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import pl.codesharks.games.colorgame.anim.Frame;
-
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +23,7 @@ public class Animation {
      */
     private long lastFrameTime;
 
-    public Animation(BufferedImage[] frames, int fps) throws InvalidArgumentException {
+    public Animation(BufferedImage[] frames, int fps) {
         this.stopped = true;
         this.frameDelayMs = (float) 1000.0f / fps;
 
@@ -76,9 +73,9 @@ public class Animation {
         this.currentFrame = 0;
     }
 
-    private void addFrame(BufferedImage frame, float duration) throws InvalidArgumentException {
+    private void addFrame(BufferedImage frame, float duration){
         if (duration <= 0f) {
-            throw new InvalidArgumentException(new String[]{"Invalid duration: " + duration});
+            throw new RuntimeException("Invalid duration: " + duration);
         }
 
         frames.add(new Frame(frame, duration));

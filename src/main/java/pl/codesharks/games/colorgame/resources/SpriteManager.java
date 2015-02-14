@@ -71,7 +71,7 @@ public final class SpriteManager {
         return optimalImage;
     }
 
-    protected static URL createUrl(String filename) {
+    public static URL createUrl(String filename) {
         return _instance.getClass().getResource(SPRITES_DIR + filename);
     }
 

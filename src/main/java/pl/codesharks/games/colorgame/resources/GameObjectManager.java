@@ -39,6 +39,12 @@ public final class GameObjectManager {
         }
     }
 
+    public void start() {
+        for (int i = 0, length = size; i < length; i++) {
+            objects.get(i).start();
+        }
+    }
+
     public int getSize() {
         return objects.size();
     }
@@ -63,5 +69,9 @@ public final class GameObjectManager {
             }
         }
         return player;
+    }
+
+    public void removeAll() {
+        objects.clear();
     }
 }

@@ -1,25 +1,24 @@
 package pl.codesharks.games.colorgame;
 
-import pl.codesharks.games.colorgame.anim.Animation;
-import pl.codesharks.games.colorgame.anim.SpriteSheet;
-import pl.codesharks.games.colorgame.objects.AnimatedObject;
+import pl.codesharks.games.colorgame.loggging.MyLogger;
 import pl.codesharks.games.colorgame.objects.BasicEnemy;
 import pl.codesharks.games.colorgame.objects.Player;
 import pl.codesharks.games.colorgame.resources.GameObjectManager;
 import pl.codesharks.games.colorgame.resources.ObjectSpawn;
+import pl.codesharks.games.colorgame.resources.SoundEngine;
 import pl.codesharks.games.colorgame.resources.SpriteManager;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class GameEngine extends Canvas implements Runnable {
-
     public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(WIDTH * 9) / 10;
     public static final boolean PREFERENCE_FULLSCREEN = false;
-
     public static final int FPS_LIMIT = 45;
     /**
      * Limits the FPS_LIMIT variable to the max serious value
@@ -31,16 +30,18 @@ public class GameEngine extends Canvas implements Runnable {
     public static final int DEBUG_HUD_REFRESH_INTERVAL = 1000;
     static final double SLEEP_TIME_OPTIMAL = 1000 / (double) FPS_LIMIT;
     static final double SLEEP_TIME_MIN = 1000 / (double) FPS_LIMIT_OVERALL;
+    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static final long serialVersionUID = 5739050383772454388L;
     private final Object lock = new Object();
     public GameObjectManager gameObjectManager;
-    BufferStrategy bufferStrategy = null;
-    Graphics g;
+    private BufferStrategy bufferStrategy = null;
+    private Graphics g;
     @SuppressWarnings("FieldCanBeLocal")
     private GameScreen gameScreen;
     private HUD hud;
     private ObjectSpawn objectSpawn;
-    private Thread thread;
+    private Thread gameThread;
+    private SoundEngine se;
     private GameData gameData;
     private volatile boolean running = false;
     private long FPS = 0;
@@ -48,9 +49,11 @@ public class GameEngine extends Canvas implements Runnable {
     private int frameCounter = 0;
     private boolean paused = false;
 
-    public GameEngine() {
+    public GameEngine() throws IOException, LineUnavailableException, Exception {
         setSize(WIDTH, HEIGHT);
         gameData = GameData.getInstance();
+        if (true)
+            throw new Exception("troloolo");
 
         gameObjectManager = GameObjectManager.getInstance();
         this.addKeyListener(new KeyInput(this));
@@ -73,6 +76,10 @@ public class GameEngine extends Canvas implements Runnable {
         }
 
         startGame();
+
+
+        se = new SoundEngine(getClass().getResourceAsStream("/music/background.wav"), true);
+        se.start();
     }
 
     public static void showInfoBox(String infoMessage, String titleBar) {
@@ -80,7 +87,18 @@ public class GameEngine extends Canvas implements Runnable {
     }
 
     public static void main(String[] args) {
-        new GameEngine();
+        try {
+            MyLogger.setup();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Problems with creating the log files");
+        }
+        try {
+            new GameEngine();
+        } catch (final Exception e) {
+            e.printStackTrace();
+            LOGGER.severe(e.getMessage());
+        }
     }
 
     /**
@@ -117,6 +135,25 @@ public class GameEngine extends Canvas implements Runnable {
         return out;
     }
 
+    /**
+     * Loads all images to memory
+     */
+    public static void loadGameObjects() {
+        GameObjectManager gom = GameObjectManager.getInstance();
+        try {
+            Random r = new Random();
+            for (int i = 0; i < 2; i++) {
+                gom.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy));
+            }
+
+            gom.addObject(new Player(200, 200, ID.Player));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("failed to load resources: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
     public boolean isPaused() {
         synchronized (lock) {
             return paused;
@@ -129,42 +166,9 @@ public class GameEngine extends Canvas implements Runnable {
         }
     }
 
-    /**
-     * Loads all images to memory
-     */
-    private void loadGameObjects() {
-        try {
-            SpriteManager sManager = SpriteManager.getInstance();
-            {
-                SpriteSheet hs = sManager.loadSpriteSheet("hearts.png", 112, 107);
-
-                BufferedImage[] heartRes = new BufferedImage[14];
-                for (int i = 0, arrayIndex = 0; i < 2; i++) {
-                    for (int j = 0; j < 7; j++, arrayIndex++) {
-                        heartRes[arrayIndex] = hs.getSprite(j, i);
-                    }
-                }
-                Animation anim = new Animation(heartRes, 20);
-                gameObjectManager.addObject(new AnimatedObject(GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2, ID.Neutral, anim));
-            }
-
-
-            Random r = new Random();
-            for (int i = 0; i < 2; i++) {
-                gameObjectManager.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy));
-            }
-
-            gameObjectManager.addObject(new Player(200, 200, ID.Player));
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("failed to load resources: " + e.getMessage());
-            System.exit(1);
-        }
-    }
-
     public void cacheSprites() {
         SpriteManager sm = SpriteManager.getInstance();
-        String[] sprites = {"razem.png", "hearts.png", "cool.png"};
+        String[] sprites = {"hearts.png", "razem.png"};
 
         for (String sprite : sprites) {
             sm.loadSprite(sprite);
@@ -184,6 +188,8 @@ public class GameEngine extends Canvas implements Runnable {
      */
     @Override
     public void run() {
+        gameObjectManager.start();
+
         long lastLoopTime = System.nanoTime();
         //The last time at which we recorded the frame rate
         double msToUpdateFPSHUD = 0;
@@ -256,15 +262,18 @@ public class GameEngine extends Canvas implements Runnable {
     }
 
     private void update(float deltaTime) {
+        // GAME LOGIC FIRST!!
         gameData.update();
-        gameObjectManager.update(deltaTime);
-        hud.update();
+
         objectSpawn.update();
+        gameObjectManager.update(deltaTime);
+
+        hud.update();
     }
 
     public void startGame() {
-        thread = new Thread(this);
-        thread.start();
+        gameThread = new Thread(this);
+        gameThread.start();
         synchronized (lock) {
             running = true;
         }
@@ -275,10 +284,12 @@ public class GameEngine extends Canvas implements Runnable {
             this.running = false;
         }
         try {
-            thread.join(500);
+            gameThread.join(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        thread = null;
+        gameThread = null;
+        se.stop();
     }
+
 }

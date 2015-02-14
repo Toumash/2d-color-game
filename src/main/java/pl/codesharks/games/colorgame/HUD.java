@@ -2,12 +2,13 @@ package pl.codesharks.games.colorgame;
 
 import pl.codesharks.games.colorgame.resources.ColorLib;
 import pl.codesharks.games.colorgame.resources.FontLib;
+import pl.codesharks.games.colorgame.resources.SoundEngine;
 
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
 public class HUD implements GameObserver {
-    private static int greenValue = 255;
+   private static int greenValue = 255;
     GameData gameData = GameData.getInstance();
     boolean deathNotified = false;
     boolean dead = false;
@@ -43,8 +44,11 @@ public class HUD implements GameObserver {
             g.drawRect(15, 15, 200, 32);
         } else {
             Font f = g.getFont();
+
             g.setFont(FontLib.END_GAME);
-            RenderUtils.drawStringAtCenter(g, "YOU LOST : C", 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2);
+            RenderUtils.drawStringAtCenter(g, "YOU LOST", 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2);
+            RenderUtils.drawStringAtCenter(g, "Score: " + score, 0, GameEngine.WIDTH / 2, GameEngine.HEIGHT / 2 + 50);
+
             g.setFont(f);
         }
 
@@ -54,21 +58,24 @@ public class HUD implements GameObserver {
         g.drawString(String.format("Render time: %3.2f ms", renderTime), 10, 60);
     }
 
-
     @Override
     public void gameDataChanged(int changedData) {
-        switch (changedData){
+        switch (changedData) {
             case GameData.CHANGED.DEATH:
-                dead=true;
+                dead = true;
+                SoundEngine se = new SoundEngine(GameEngine.class.getResourceAsStream("/music/game_over.wav"), false);
+                se.start();
                 break;
             case GameData.CHANGED.LEVEL:
                 level = gameData.getLevel();
                 break;
             case GameData.CHANGED.SCORE:
-                score = gameData.getScore();
+                if (!dead) {
+                    score = gameData.getScore();
+                }
                 break;
             case GameData.CHANGED.HEALTH:
-                hp= gameData.getHp();
+                hp = gameData.getHp();
                 hp = GameEngine.clamp(hp, 0, 100);
                 break;
         }

@@ -12,7 +12,10 @@ public final class GameData {
     public static final int HP_DEAD = -99;
     private static final GameData _instance = new GameData();
     boolean dead = false;
-    private int score = 0;
+    /**
+     * need to be 1
+     */
+    private int score = 1;
     private int level = 1;
     private int hp = 100;
     private List<GameObserver> observers = new ArrayList<GameObserver>();
@@ -53,6 +56,7 @@ public final class GameData {
     public void start() {
         lastScoreTime = System.nanoTime();
     }
+
 
     public void update() {
         if (!dead) {

@@ -10,8 +10,8 @@ import java.util.Queue;
 
 public class FastEnemy extends GameObject {
     public static final Color color = Color.CYAN;
-    public static final int MAX_SPEED_X = 7;
-    public static final int MAX_SPEED_Y = 40;
+    public static final int MAX_SPEED_X = 10;
+    public static final int MAX_SPEED_Y = 45;
     public static final int WIDTH = 16;
     public static final int HEIGHT = 16;
     public static final int MAX_TRAIL_AMOUNT = 10;

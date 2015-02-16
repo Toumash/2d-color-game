@@ -3,7 +3,7 @@ package pl.codesharks.games.colorgame.objects;
 import java.awt.*;
 
 
-public class FloatingObject extends GameObject {
+public class FloatingObject extends GameObject{
     public int maxDiffX = 0;
     public int maxDiffY = 150;
     float startHeight;
@@ -14,7 +14,7 @@ public class FloatingObject extends GameObject {
 
 
     public FloatingObject(GameObject gameObject, int maxDiffX, int maxDiffY) {
-        super(gameObject.getX(), gameObject.getY(), gameObject.id);
+        super(gameObject.getX(), gameObject.getY(), gameObject.tag);
         startHeight = gameObject.getY();
         this.gameObject = gameObject;
         this.maxDiffX = maxDiffX;

@@ -3,12 +3,8 @@ package pl.codesharks.games.colorgame;
 import pl.codesharks.games.colorgame.loggging.MyLogger;
 import pl.codesharks.games.colorgame.objects.BasicEnemy;
 import pl.codesharks.games.colorgame.objects.Player;
-import pl.codesharks.games.colorgame.resources.GameObjectManager;
-import pl.codesharks.games.colorgame.resources.ObjectSpawn;
-import pl.codesharks.games.colorgame.resources.SoundEngine;
-import pl.codesharks.games.colorgame.resources.SpriteManager;
+import pl.codesharks.games.colorgame.resources.*;
 
-import javax.sound.sampled.LineUnavailableException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -19,14 +15,12 @@ import java.util.logging.Logger;
 public class GameEngine extends Canvas implements Runnable {
     public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(WIDTH * 9) / 10;
     public static final boolean PREFERENCE_FULLSCREEN = false;
-    public static final int FPS_LIMIT = 45;
+    public static final int FPS_LIMIT = 450;
     /**
      * Limits the FPS_LIMIT variable to the max serious value
      * Don't use greater, it will blow your computer
      */
     public static final int FPS_LIMIT_OVERALL = 400;
-    public static final Color BACKGROUND_COLOR = Color.decode("#283339");
-    public static final Color SCREEN_BACKGROUND_COLOR = BACKGROUND_COLOR;
     public static final int DEBUG_HUD_REFRESH_INTERVAL = 1000;
     static final double SLEEP_TIME_OPTIMAL = 1000 / (double) FPS_LIMIT;
     static final double SLEEP_TIME_MIN = 1000 / (double) FPS_LIMIT_OVERALL;
@@ -49,20 +43,15 @@ public class GameEngine extends Canvas implements Runnable {
     private int frameCounter = 0;
     private boolean paused = false;
 
-    public GameEngine() throws IOException, LineUnavailableException, Exception {
+    public GameEngine() throws Exception {
         setSize(WIDTH, HEIGHT);
         gameData = GameData.getInstance();
-        if (true)
-            throw new Exception("troloolo");
 
         gameObjectManager = GameObjectManager.getInstance();
         this.addKeyListener(new KeyInput(this));
 
         hud = new HUD();
         objectSpawn = new ObjectSpawn();
-
-        gameData.attach(hud);
-        gameData.attach(objectSpawn);
 
         gameScreen = new GameScreen(GameEngine.this, "Cool Game!", PREFERENCE_FULLSCREEN);
 
@@ -76,7 +65,6 @@ public class GameEngine extends Canvas implements Runnable {
         }
 
         startGame();
-
 
         se = new SoundEngine(getClass().getResourceAsStream("/music/background.wav"), true);
         se.start();
@@ -143,10 +131,10 @@ public class GameEngine extends Canvas implements Runnable {
         try {
             Random r = new Random();
             for (int i = 0; i < 2; i++) {
-                gom.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), ID.BasicEnemy));
+                gom.addObject(new BasicEnemy(r.nextInt(WIDTH), r.nextInt(HEIGHT), Tag.BasicEnemy));
             }
 
-            gom.addObject(new Player(200, 200, ID.Player));
+            gom.addObject(new Player(200, 200, Tag.Player));
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("failed to load resources: " + e.getMessage());
@@ -168,7 +156,7 @@ public class GameEngine extends Canvas implements Runnable {
 
     public void cacheSprites() {
         SpriteManager sm = SpriteManager.getInstance();
-        String[] sprites = {"hearts.png", "razem.png"};
+        String[] sprites = {};
 
         for (String sprite : sprites) {
             sm.loadSprite(sprite);
@@ -250,7 +238,7 @@ public class GameEngine extends Canvas implements Runnable {
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
         //BACKGROUND
-        g.setColor(SCREEN_BACKGROUND_COLOR);
+        g.setColor(ColorLib.SCREEN_BACKGROUND_COLOR);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
         gameObjectManager.render(g);

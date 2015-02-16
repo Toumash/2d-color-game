@@ -1,8 +1,5 @@
 package pl.codesharks.games.colorgame;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * SINGLETON
  *
@@ -18,7 +15,6 @@ public final class GameData {
     private int score = 1;
     private int level = 1;
     private int hp = 100;
-    private List<GameObserver> observers = new ArrayList<GameObserver>();
     private int scoreKeep = 0;
     private long lastScoreTime;
 
@@ -35,22 +31,10 @@ public final class GameData {
 
     public void setHp(int hp) {
         this.hp = hp;
-        notifyAllObservers(CHANGED.HEALTH);
     }
 
     public void setDead(boolean state) {
         this.dead = state;
-        notifyAllObservers(CHANGED.SCORE);
-    }
-
-    public void attach(GameObserver observer) {
-        observers.add(observer);
-    }
-
-    public void notifyAllObservers(int changedGameData) {
-        for (GameObserver observer : observers) {
-            observer.gameDataChanged(changedGameData);
-        }
     }
 
     public void start() {
@@ -66,13 +50,11 @@ public final class GameData {
         scoreKeep++;
         if (scoreKeep >= 500) {
             scoreKeep = 0;
-            if (hp != 0) {
+            if (!dead) {
                 level++;
-                notifyAllObservers(CHANGED.LEVEL);
             }
         }
         if (hp == 0) {
-            notifyAllObservers(CHANGED.DEATH);
             hp = HP_DEAD;
         }
         lastScoreTime = System.nanoTime();
@@ -84,7 +66,6 @@ public final class GameData {
 
     public void setScore(int score) {
         this.score = score;
-        notifyAllObservers(CHANGED.SCORE);
     }
 
     public int getLevel() {
@@ -93,12 +74,10 @@ public final class GameData {
 
     public void setLevel(int level) {
         this.level = level;
-        notifyAllObservers(CHANGED.LEVEL);
     }
 
     public void subtractHp(int diff) {
         hp -= diff;
-        notifyAllObservers(CHANGED.HEALTH);
     }
 
     public static final class CHANGED {

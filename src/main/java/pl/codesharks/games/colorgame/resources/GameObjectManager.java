@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public final class GameObjectManager {
 
     private static GameObjectManager _instance = new GameObjectManager();
-    public ArrayList<GameObject> objects = new ArrayList<GameObject>();
+    public ArrayList<GameObject> objects = new ArrayList<GameObject>(20);
     private int size = 0;
 
     private GameObjectManager() {

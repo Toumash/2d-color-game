@@ -7,8 +7,8 @@ import pl.codesharks.games.colorgame.resources.SoundEngine;
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
-public class HUD implements GameObserver {
-   private static int greenValue = 255;
+public class HUD {
+    private static int greenValue = 255;
     GameData gameData = GameData.getInstance();
     boolean deathNotified = false;
     boolean dead = false;
@@ -20,14 +20,21 @@ public class HUD implements GameObserver {
     }
 
     public void update() {
-        /*score = gameData.getScore();
-        level = gameData.getLevel();
-        hp = gameData.getHealth();*/
 
-    }
+        if (!dead) {
+            score = gameData.getScore();
+            level = gameData.getLevel();
 
-    public void notifyPlayerDeath() {
-        dead = true;
+            hp = gameData.getHp();
+            GameEngine.clamp(hp, 0, 100);
+
+            if (gameData.getHp() <= 0) {
+                dead = true;
+                SoundEngine se = new SoundEngine(GameEngine.class.getResourceAsStream("/music/game_over.wav"), false);
+                se.start();
+            }
+        }
+
     }
 
     public void render(Graphics g, long fps, double renderTime) {
@@ -56,28 +63,5 @@ public class HUD implements GameObserver {
         g.drawString("Level: " + level, 10, GameEngine.HEIGHT - 32);
         g.drawString("FPS: " + fps, 10, 70);
         g.drawString(String.format("Render time: %3.2f ms", renderTime), 10, 60);
-    }
-
-    @Override
-    public void gameDataChanged(int changedData) {
-        switch (changedData) {
-            case GameData.CHANGED.DEATH:
-                dead = true;
-                SoundEngine se = new SoundEngine(GameEngine.class.getResourceAsStream("/music/game_over.wav"), false);
-                se.start();
-                break;
-            case GameData.CHANGED.LEVEL:
-                level = gameData.getLevel();
-                break;
-            case GameData.CHANGED.SCORE:
-                if (!dead) {
-                    score = gameData.getScore();
-                }
-                break;
-            case GameData.CHANGED.HEALTH:
-                hp = gameData.getHp();
-                hp = GameEngine.clamp(hp, 0, 100);
-                break;
-        }
     }
 }

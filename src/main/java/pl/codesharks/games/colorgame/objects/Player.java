@@ -2,7 +2,7 @@ package pl.codesharks.games.colorgame.objects;
 
 import pl.codesharks.games.colorgame.GameData;
 import pl.codesharks.games.colorgame.GameEngine;
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
 import pl.codesharks.games.colorgame.resources.ColorLib;
 import pl.codesharks.games.colorgame.resources.GameObjectManager;
 
@@ -24,8 +24,8 @@ public class Player extends GameObject {
     float lastTrailY = y;
     private GameObjectManager gameObjectManager;
 
-    public Player(int x, int y, ID id) {
-        super(x, y, id);
+    public Player(int x, int y, Tag tag) {
+        super(x, y, tag);
         this.gameObjectManager = GameObjectManager.getInstance();
     }
 
@@ -38,7 +38,7 @@ public class Player extends GameObject {
 
         if (Math.abs(lastTrailX - x) >= TRAIL_STEP_X || Math.abs(lastTrailY - y) >= TRAIL_STEP_Y) {
             if (trailParts.size() < MAX_TRAIL_AMOUNT) {
-                trailParts.add(new Trail((int) x, (int) y, ID.Trail, ColorLib.PLAYER, WIDTH, HEIGHT, 0.1f));
+                trailParts.add(new Trail((int) x, (int) y, ColorLib.PLAYER, WIDTH, HEIGHT, 0.1f));
             } else {
                 Trail tmp = trailParts.poll();
                 tmp.reset(x, y);
@@ -82,7 +82,7 @@ public class Player extends GameObject {
         GameObject obj;
         for (int i = 0, length = gameObjectManager.getSize(); i < length; i++) {
             obj = gameObjectManager.objects.get(i);
-            if (obj.getId() == ID.BasicEnemy || obj.getId() == ID.FastEnemy || obj.getId() == ID.SmartEnemy) {
+            if (obj.getTag() == Tag.BasicEnemy || obj.getTag() == Tag.FastEnemy || obj.getTag() == Tag.SmartEnemy) {
                 if (getBounds().intersects(obj.getBounds())) {
                     GameData.getInstance().subtractHp(5);
                 }

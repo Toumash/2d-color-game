@@ -1,7 +1,7 @@
 package pl.codesharks.games.colorgame.objects;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
 import pl.codesharks.games.colorgame.resources.GameObjectManager;
 
 import java.awt.*;
@@ -23,23 +23,24 @@ public class SmartEnemy extends GameObject {
     float lastTrailX = x;
     float lastTrailY = y;
     private GameObject player;
+    Vector2D directionVector = null;
 
-    public SmartEnemy(int x, int y, ID id, GameObjectManager gameObjectManager) {
-        super(x, y, id);
+    public SmartEnemy(int x, int y, Tag tag, GameObjectManager gameObjectManager) {
+        super(x, y, tag);
 
         player = GameObjectManager.getInstance().getPlayerObject();
     }
 
     @Override
     public void update(float deltaTime) {
-        Vector2D directionVector = new Vector2D(player.getX() - x, player.getY() - y);
+        this.directionVector = new Vector2D(player.getX() - x, player.getY() - y);
         directionVector = directionVector.normalize();
         x += directionVector.getX() * deltaTime * MAX_SPEED_X;
         y += directionVector.getY() * deltaTime * MAX_SPEED_Y;
 
         if (Math.abs(lastTrailX - x) >= TRAIL_STEP_X || Math.abs(lastTrailY - y) >= TRAIL_STEP_Y) {
             if (trails.size() < MAX_TRAIL_AMOUNT) {
-                trails.add(new Trail((int) x, (int) y, ID.Trail, color, WIDTH, HEIGHT, 0.1f));
+                trails.add(new Trail((int) x, (int) y, color, WIDTH, HEIGHT, 0.1f));
             } else {
                 Trail tmp = trails.poll();
                 tmp.reset(x, y);

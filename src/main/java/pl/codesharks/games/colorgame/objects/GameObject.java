@@ -1,23 +1,24 @@
 package pl.codesharks.games.colorgame.objects;
 
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
+import pl.codesharks.games.colorgame.Renderable;
 
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
-public abstract class GameObject implements Cloneable {
+public abstract class GameObject implements Cloneable,Renderable {
     public static final int RENDER_TYPE_DEFAULT = 0;
     public static final int RENDER_TYPE_BOUNDS = 1;
 
     protected float x, y;
-    protected ID id;
+    protected Tag tag;
     protected float velX, velY;
     protected boolean enabled = true;
 
-    public GameObject(float x, float y, ID id) {
+    public GameObject(float x, float y, Tag tag) {
         this.x = x;
         this.y = y;
-        this.id = id;
+        this.tag = tag;
     }
 
     public abstract void update(float deltaTime);
@@ -52,12 +53,12 @@ public abstract class GameObject implements Cloneable {
         this.y = y;
     }
 
-    public ID getId() {
-        return id;
+    public Tag getTag() {
+        return tag;
     }
 
-    public void setId(ID id) {
-        this.id = id;
+    public void setTag(Tag tag) {
+        this.tag = tag;
     }
 
     public float getVelX() {

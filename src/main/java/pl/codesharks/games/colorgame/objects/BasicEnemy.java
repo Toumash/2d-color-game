@@ -1,7 +1,7 @@
 package pl.codesharks.games.colorgame.objects;
 
 import pl.codesharks.games.colorgame.GameEngine;
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
 
 import java.awt.*;
 import java.util.ArrayDeque;
@@ -21,8 +21,8 @@ public class BasicEnemy extends GameObject {
     float lastTrailX = x;
     float lastTrailY = y;
 
-    public BasicEnemy(int x, int y, ID id) {
-        super(x, y, id);
+    public BasicEnemy(int x, int y, Tag tag) {
+        super(x, y, tag);
         velX = MAX_SPEED_X;
         velY = MAX_SPEED_Y;
     }
@@ -37,7 +37,7 @@ public class BasicEnemy extends GameObject {
 
         if (Math.abs(lastTrailX - x) >= TRAIL_STEP_X || Math.abs(lastTrailY - y) >= TRAIL_STEP_Y) {
             if (trails.size() < MAX_TRAIL_AMOUNT) {
-                trails.add(new Trail((int) x, (int) y, ID.Trail, color, WIDTH, HEIGHT, 0.1f));
+                trails.add(new Trail((int) x, (int) y, color, WIDTH, HEIGHT, 0.1f));
             } else {
                 Trail tmp = trails.poll();
                 tmp.reset(x, y);

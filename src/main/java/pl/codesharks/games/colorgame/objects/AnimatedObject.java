@@ -3,7 +3,7 @@ package pl.codesharks.games.colorgame.objects;
 import pl.codesharks.games.colorgame.anim.Animation;
 import pl.codesharks.games.colorgame.resources.ColorLib;
 import pl.codesharks.games.colorgame.GameEngine;
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
 
 import java.awt.*;
 
@@ -17,8 +17,8 @@ public class AnimatedObject extends GameObject {
     private Animation animation;
 
 
-    public AnimatedObject(int x, int y, ID id, Animation animation) {
-        super(x, y, id);
+    public AnimatedObject(int x, int y, Tag tag, Animation animation) {
+        super(x, y, tag);
         this.animation = animation;
         animation.start();
     }

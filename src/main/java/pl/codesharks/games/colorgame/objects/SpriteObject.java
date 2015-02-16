@@ -1,6 +1,6 @@
 package pl.codesharks.games.colorgame.objects;
 
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,8 +8,8 @@ import java.awt.image.BufferedImage;
 public final class SpriteObject extends GameObject {
     private BufferedImage image;
 
-    public SpriteObject(float x, float y, ID id, BufferedImage image) {
-        super(x, y, id);
+    public SpriteObject(float x, float y, Tag tag, BufferedImage image) {
+        super(x, y, tag);
         this.image = image;
     }
 

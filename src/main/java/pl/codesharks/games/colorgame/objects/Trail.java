@@ -1,10 +1,10 @@
 package pl.codesharks.games.colorgame.objects;
 
-import pl.codesharks.games.colorgame.ID;
+import pl.codesharks.games.colorgame.Tag;
 
 import java.awt.*;
 
-public class Trail extends GameObject implements Cloneable {
+public class Trail extends GameObject {
 
     private final Color color;
     private final int height, width;
@@ -12,12 +12,11 @@ public class Trail extends GameObject implements Cloneable {
      * 0.001 - 0.1
      */
     public float step;
-    public volatile float alpha = 1f;
-    private ID id;
+    public float alpha = 1f;
+    int alphaCompositeType = AlphaComposite.SRC_OVER;
 
-    public Trail(int x, int y, ID id, Color color, int width, int height, float step) {
-        super(x, y, id);
-        this.id = id;
+    public Trail(int x, int y, Color color, int width, int height, float step) {
+        super(x, y, Tag.Neutral);
         this.color = color;
         this.width = width;
         this.height = height;
@@ -26,8 +25,7 @@ public class Trail extends GameObject implements Cloneable {
     }
 
     private AlphaComposite makeTransparent(float alpha) {
-        int type = AlphaComposite.SRC_OVER;
-        return (AlphaComposite.getInstance(type, alpha));
+        return (AlphaComposite.getInstance(alphaCompositeType, alpha));
     }
 
     @Override
@@ -68,11 +66,6 @@ public class Trail extends GameObject implements Cloneable {
         this.alpha = 1f;
         this.setX(newX);
         this.setY(newY);
-    }
-
-    @Override
-    public Trail clone() throws CloneNotSupportedException {
-        return (Trail) super.clone();
     }
 
     @Override

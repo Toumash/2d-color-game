@@ -45,6 +45,13 @@ public class MyLogger {
         logger.addHandler(fileHTML);
 
     }
+    public static void close(){
+        fileHTML.flush();
+        fileHTML.close();
+
+        fileTxt.flush();
+        fileTxt.close();
+    }
 
 }
 

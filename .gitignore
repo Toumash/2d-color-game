@@ -66,3 +66,5 @@ atlassian-ide-plugin.xml
 
 classes/
 target/
+log.html
+log.txt

@@ -1,5 +1,6 @@
 package pl.codesharks.games.colorgame.objects;
 
+import org.apache.commons.math3.exception.MathArithmeticException;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import pl.codesharks.games.colorgame.Tag;
 import pl.codesharks.games.colorgame.resources.GameObjectManager;
@@ -34,6 +35,10 @@ public class SmartEnemy extends GameObject {
     @Override
     public void update(float deltaTime) {
         this.directionVector = new Vector2D(player.getX() - x, player.getY() - y);
+        try {
+            directionVector = directionVector.normalize();
+        }catch (MathArithmeticException ignored){}
+
         directionVector = directionVector.normalize();
         x += directionVector.getX() * deltaTime * MAX_SPEED_X;
         y += directionVector.getY() * deltaTime * MAX_SPEED_Y;
@@ -71,7 +76,6 @@ public class SmartEnemy extends GameObject {
                 g2d.draw(getBounds());
                 break;
         }
-
     }
 
     @Override

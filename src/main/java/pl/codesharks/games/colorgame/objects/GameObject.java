@@ -1,12 +1,12 @@
 package pl.codesharks.games.colorgame.objects;
 
 import pl.codesharks.games.colorgame.Tag;
-import pl.codesharks.games.colorgame.Renderable;
+import pl.codesharks.games.colorgame.Drawable;
 
 import java.awt.*;
 
 @SuppressWarnings("UnusedDeclaration")
-public abstract class GameObject implements Cloneable,Renderable {
+public abstract class GameObject implements Cloneable,Drawable {
     public static final int RENDER_TYPE_DEFAULT = 0;
     public static final int RENDER_TYPE_BOUNDS = 1;
 

@@ -26,7 +26,6 @@ public class KeyInput extends KeyAdapter {
         Arrays.fill(keyDown, false);
     }
 
-
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();

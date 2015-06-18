@@ -1,5 +1,6 @@
 package pl.codesharks.games.colorgame.resources;
 
+import pl.codesharks.games.colorgame.Drawable;
 import pl.codesharks.games.colorgame.objects.GameObject;
 import pl.codesharks.games.colorgame.objects.Player;
 
@@ -11,10 +12,10 @@ import java.util.ArrayList;
  *
  * @author Toumash
  */
-public final class GameObjectManager {
+public final class GameObjectManager implements Drawable {
 
     private static GameObjectManager _instance = new GameObjectManager();
-    public ArrayList<GameObject> objects = new ArrayList<GameObject>(20);
+    public ArrayList<GameObject> objects = new ArrayList<>(20);
     private int size = 0;
 
     private GameObjectManager() {
@@ -30,11 +31,17 @@ public final class GameObjectManager {
         }
     }
 
-    public void render(Graphics g) {
+    @Override
+    public Rectangle getBounds() {
+        return null;
+    }
+
+    @Override
+    public void render(Graphics g, int renderType) {
         for (int i = 0, length = size; i < length; i++) {
             GameObject tmp = objects.get(i);
             if (tmp.isEnabled()) {
-                tmp.render(g, GameObject.RENDER_TYPE_DEFAULT);
+                tmp.render(g, renderType);
             }
         }
     }

@@ -1,21 +1,20 @@
 package pl.codesharks.games.colorgame;
 
-import pl.codesharks.games.colorgame.loggging.MyLogger;
 import pl.codesharks.games.colorgame.objects.BasicEnemy;
+import pl.codesharks.games.colorgame.objects.GameObject;
 import pl.codesharks.games.colorgame.objects.Player;
 import pl.codesharks.games.colorgame.resources.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
-import java.io.IOException;
 import java.util.Random;
 import java.util.logging.Logger;
 
 public class GameEngine extends Canvas implements Runnable {
     public static final int WIDTH = 1024, HEIGHT = (int) (WIDTH / (1.6));//(WIDTH * 9) / 10;
     public static final boolean PREFERENCE_FULLSCREEN = false;
-    public static final int FPS_LIMIT = 450;
+    public static final int FPS_LIMIT = 60;
     /**
      * Limits the FPS_LIMIT variable to the max serious value
      * Don't use greater, it will blow your computer
@@ -24,7 +23,7 @@ public class GameEngine extends Canvas implements Runnable {
     public static final int DEBUG_HUD_REFRESH_INTERVAL = 1000;
     static final double SLEEP_TIME_OPTIMAL = 1000 / (double) FPS_LIMIT;
     static final double SLEEP_TIME_MIN = 1000 / (double) FPS_LIMIT_OVERALL;
-    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    public final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static final long serialVersionUID = 5739050383772454388L;
     private final Object lock = new Object();
     public GameObjectManager gameObjectManager;
@@ -43,8 +42,11 @@ public class GameEngine extends Canvas implements Runnable {
     private int frameCounter = 0;
     private boolean paused = false;
 
-    public GameEngine() throws Exception {
+    public GameEngine() {
         setSize(WIDTH, HEIGHT);
+    }
+
+    public void init(){
         gameData = GameData.getInstance();
 
         gameObjectManager = GameObjectManager.getInstance();
@@ -72,21 +74,6 @@ public class GameEngine extends Canvas implements Runnable {
 
     public static void showInfoBox(String infoMessage, String titleBar) {
         JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public static void main(String[] args) {
-        try {
-            MyLogger.setup();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Problems with creating the log files");
-        }
-        try {
-            new GameEngine();
-        } catch (final Exception e) {
-            e.printStackTrace();
-            LOGGER.severe(e.getMessage());
-        }
     }
 
     /**
@@ -210,9 +197,10 @@ public class GameEngine extends Canvas implements Runnable {
                 FPS = frameCounter;
                 averageRenderMs = sumOfLastIRenderTime / frameCounter; //(renderEndTime - renderStartTime) / 1000000.0d;
                 sumOfLastIRenderTime = 0;
-                msToUpdateFPSHUD = 0;
+                msToUpdateFPSHUD -= DEBUG_HUD_REFRESH_INTERVAL;
                 frameCounter = 0;
             }
+
             try {
                 Thread.sleep((long) Math.max(0, Math.max(SLEEP_TIME_OPTIMAL - ((renderEndTime - lastLoopTime) / 10000000.0d), SLEEP_TIME_MIN)));
             } catch (InterruptedException ignored) {
@@ -241,7 +229,7 @@ public class GameEngine extends Canvas implements Runnable {
         g.setColor(ColorLib.SCREEN_BACKGROUND_COLOR);
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        gameObjectManager.render(g);
+        gameObjectManager.render(g, GameObject.RENDER_TYPE_DEFAULT);
         hud.render(g, FPS, averageRenderMs);
 
         // g.dispose();

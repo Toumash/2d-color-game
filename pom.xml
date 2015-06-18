@@ -45,7 +45,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>pl.codesharks.games.colorgame.GameEngine</mainClass>
+                            <mainClass>pl.codesharks.games.colorgame.Main</mainClass>
                             <classpathPrefix>libs/</classpathPrefix>
 
                         </manifest>

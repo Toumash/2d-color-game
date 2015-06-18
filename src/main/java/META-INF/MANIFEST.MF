@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: resources/
-Main-Class: pl.codesharks.games.colorgame.GameEngine
-

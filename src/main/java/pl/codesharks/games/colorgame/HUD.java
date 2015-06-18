@@ -34,7 +34,6 @@ public class HUD {
                 se.start();
             }
         }
-
     }
 
     public void render(Graphics g, long fps, double renderTime) {

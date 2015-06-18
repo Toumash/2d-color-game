@@ -102,18 +102,7 @@ public class Animation {
                         currentFrame += totalFrames + 1;
                     }
                 }
-            }/*
-            if (frameCount > frameDelayMs) {
-                frameCount = 0;
-                currentFrame += animationDirection;
-
-                if (currentFrame > totalFrames - 1) {
-                    currentFrame = 0;
-                } else if (currentFrame < 0) {
-                    currentFrame = totalFrames - 1;
-                }
-
-            }*/
+            }
         }
 
     }

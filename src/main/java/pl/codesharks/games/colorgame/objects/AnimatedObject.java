@@ -10,12 +10,9 @@ import java.awt.*;
 
 public class AnimatedObject extends GameObject {
 
-    public static final int MAX_SPEED_X = 35;
-    public static final int MAX_SPEED_Y = 35;
     public final int WIDTH = 32;
     public final int HEIGHT = 32;
     private Animation animation;
-
 
     public AnimatedObject(int x, int y, Tag tag, Animation animation) {
         super(x, y, tag);

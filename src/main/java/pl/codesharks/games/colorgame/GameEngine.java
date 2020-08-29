@@ -52,8 +52,6 @@ public class GameEngine extends Canvas implements Runnable {
     public GameEngine() throws IOException, LineUnavailableException, Exception {
         setSize(WIDTH, HEIGHT);
         gameData = GameData.getInstance();
-        if (true)
-            throw new Exception("troloolo");
 
         gameObjectManager = GameObjectManager.getInstance();
         this.addKeyListener(new KeyInput(this));
@@ -168,7 +166,7 @@ public class GameEngine extends Canvas implements Runnable {
 
     public void cacheSprites() {
         SpriteManager sm = SpriteManager.getInstance();
-        String[] sprites = {"hearts.png", "razem.png"};
+        String[] sprites = {};
 
         for (String sprite : sprites) {
             sm.loadSprite(sprite);

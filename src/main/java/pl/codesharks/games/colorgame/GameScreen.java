@@ -19,7 +19,6 @@ public class GameScreen extends java.awt.Canvas {
         System.setProperty("sun.java2d.noddraw", "false");
         System.setProperty("sun.java2d.accthreshold", "1");
 
-
         mJFrame = new JFrame(title);
         mJFrame.setIgnoreRepaint(true);
         mJFrame.setUndecorated(true);
